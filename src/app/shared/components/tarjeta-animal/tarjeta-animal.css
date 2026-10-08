@@ -1,0 +1,47 @@
+.tarjeta-animal {
+ --color-texto: #232620;
+ --color-texto-suave: #6d6f68;
+ --color-fondo: #ffffff;
+ --color-fondo-suave: #f6f8f6;
+ --color-borde: #e4e3df;
+ --color-acento: #3f5c4e;
+ border: 1px solid var(--color-borde);
+ border-radius: 12px;
+ overflow: hidden;
+ background-color: var(--color-fondo);
+ font-family: 'Segoe UI', system-ui, sans-serif;
+ color: var(--color-texto);
+ transition: box-shadow 0.15s ease;
+ display: block;
+}
+.tarjeta-animal:hover {
+ box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+}
+.tarjeta-animal__foto {
+ aspect-ratio: 4 / 3;
+ background-color: var(--color-fondo-suave);
+ background-size: cover;
+ background-position: center;
+}
+.tarjeta-animal__info {
+ padding: 14px 16px;
+}
+.tarjeta-animal__nombre {
+ font-size: 15px;
+ font-weight: 600;
+ margin: 0 0 4px;
+}
+.tarjeta-animal__detalle {
+ font-size: 13px;
+ color: var(--color-texto-suave);
+ margin: 0 0 12px;
+}
+.tarjeta-animal__boton {
+ display: inline-block;
+ font-size: 13px;
+ font-weight: 600;
+  color: var(--color-acento);
+ text-decoration: none;
+ cursor: not-allowed;
+ pointer-events: none;
+}

@@ -1,0 +1,31 @@
+<main class="home">
+ <section class="home__hero">
+ <h1 class="home__hero-titulo">Encuentra a tu nuevo mejoramigo</h1>
+ <p class="home__hero-texto">Perros, gatos, aves y conejos esperando un hogar en el Refugio San Antón.</p>
+ <app-boton-cta texto="Ver animales en adopción"></app-boton-cta>
+ </section>
+ <section class="home__destacados">
+ <h2 class="home__seccion-titulo">Animales destacados</h2>
+ <div class="home__tarjetas">
+ <app-tarjeta-animal
+ *ngFor="let animal of animalesDestacados"
+ [nombre]="animal.nombre"
+ [especie]="animal.especie"
+ [edad]="animal.edad">
+ </app-tarjeta-animal>
+ </div>
+ </section>
+ <section class="home__pasos">
+ <h2 class="home__seccion-titulo">Cómo adoptar</h2>
+ <ol class="home__lista-pasos">
+ <li><span class="home__paso-numero">1</span> Rellena el
+formulario de solicitud</li>
+ <li><span class="home__paso-numero">2</span> Entrevista con
+el equipo del refugio</li>
+ <li><span class="home__paso-numero">3</span> Visita y conoce
+al animal</li>
+ <li><span class="home__paso-numero">4</span> ¡Bienvenido a
+casa!</li>
+ </ol>
+ </section>
+</main>
