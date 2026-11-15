@@ -1,0 +1,17 @@
+{
+  "name": "Angular - Ampliación de Interfaces",
+  "image": "node:24-bookworm",
+  "remoteUser": "node",
+  "forwardPorts": [4200],
+  "postCreateCommand": "npm install",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "Angular.ng-template",
+        "esbenp.prettier-vscode",
+        "EditorConfig.EditorConfig",
+        "vitest.explorer"
+      ]
+    }
+  }
+}

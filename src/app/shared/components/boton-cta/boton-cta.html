@@ -1,0 +1,8 @@
+<a
+ class="boton-cta"
+ [class.boton-cta--secundario]="variante === 'secundario'"
+ [class.boton-cta--deshabilitado]="deshabilitado"
+ [attr.aria-disabled]="deshabilitado ? 'true' : null"
+ [attr.tabindex]="deshabilitado ? '-1' : null">
+ {{ texto }}
+</a>

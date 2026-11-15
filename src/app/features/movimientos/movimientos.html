@@ -1,0 +1,186 @@
+
+<main class="movimientos">
+
+  <!-- Título de la página -->
+  <section class="movimientos__bienvenida">
+    <h1>Movimientos</h1>
+    <p>Consulta y administra tus ingresos y gastos.</p>
+  </section>
+
+  <!-- Formulario para añadir movimientos -->
+  <section class="movimientos__formulario">
+
+    <h2>Añadir movimiento</h2>
+
+    <form (ngSubmit)="agregarMovimiento()">
+
+      <div class="formulario__campos">
+
+        <div class="campo">
+          <label for="concepto">Concepto</label>
+          <input
+            id="concepto"
+            type="text"
+            name="concepto"
+            [(ngModel)]="nuevoConcepto"
+            placeholder="Ej. Compra de material"
+            required
+          >
+        </div>
+
+        <div class="campo">
+          <label for="categoria">Categoría</label>
+          <select
+            id="categoria"
+            name="categoria"
+            [(ngModel)]="nuevaCategoria"
+          >
+            <option value="Trabajo">Trabajo</option>
+            <option value="Vivienda">Vivienda</option>
+            <option value="Alimentación">Alimentación</option>
+            <option value="Transporte">Transporte</option>
+            <option value="Suministros">Suministros</option>
+            <option value="Otros">Otros</option>
+          </select>
+        </div>
+
+        <div class="campo">
+          <label for="fecha">Fecha</label>
+          <input
+            id="fecha"
+            type="date"
+            name="fecha"
+            [(ngModel)]="nuevaFecha"
+            required
+          >
+        </div>
+
+        <div class="campo">
+          <label for="importe">Importe (€)</label>
+          <input
+            id="importe"
+            type="number"
+            name="importe"
+            [(ngModel)]="nuevoImporte"
+            min="0.01"
+            step="0.01"
+            placeholder="0,00"
+            required
+          >
+        </div>
+
+        <div class="campo">
+          <label for="tipo">Tipo de movimiento</label>
+          <select
+            id="tipo"
+            name="tipo"
+            [(ngModel)]="nuevoTipo"
+          >
+            <option value="Ingreso">Ingreso</option>
+            <option value="Gasto">Gasto</option>
+          </select>
+        </div>
+
+      </div>
+
+      <button class="boton boton--principal" type="submit">
+        Añadir movimiento
+      </button>
+
+    </form>
+
+  </section>
+
+  <!-- Listado de movimientos -->
+  <section class="movimientos__listado">
+
+    <div class="listado__cabecera">
+      <div>
+        <h2>Listado de movimientos</h2>
+        <p>{{ cantidadMovimientos }} movimientos registrados</p>
+      </div>
+
+      <div class="listado__filtro">
+        <label for="filtroTipo">Filtrar:</label>
+        <select
+          id="filtroTipo"
+          name="filtroTipo"
+          [(ngModel)]="filtroTipo"
+        >
+          <option value="Todos">Todos</option>
+          <option value="Ingreso">Ingresos</option>
+          <option value="Gasto">Gastos</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="tabla-contenedor">
+
+      <table>
+        <thead>
+          <tr>
+            <th>Concepto</th>
+            <th>Categoría</th>
+            <th>Fecha</th>
+            <th>Tipo</th>
+            <th>Importe</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          <tr *ngFor="let movimiento of movimientosFiltrados">
+
+            <td>{{ movimiento.concepto }}</td>
+
+            <td>{{ movimiento.categoria }}</td>
+
+            <td>{{ movimiento.fecha | date:'dd/MM/yyyy' }}</td>
+
+            <td>
+              <span
+                class="etiqueta"
+                [class.etiqueta--ingreso]="movimiento.tipo === 'Ingreso'"
+                [class.etiqueta--gasto]="movimiento.tipo === 'Gasto'"
+              >
+                {{ movimiento.tipo }}
+              </span>
+            </td>
+
+            <td
+              class="importe"
+              [class.ingreso]="movimiento.tipo === 'Ingreso'"
+              [class.gasto]="movimiento.tipo === 'Gasto'"
+            >
+              {{ movimiento.tipo === 'Ingreso' ? '+' : '-' }}
+              {{ movimiento.importe | number:'1.2-2' }} €
+            </td>
+
+            <td>
+              <button
+                class="boton-eliminar"
+                type="button"
+                (click)="eliminarMovimiento(movimiento.id)"
+                [attr.aria-label]="'Eliminar ' + movimiento.concepto"
+              >
+                Eliminar
+              </button>
+            </td>
+
+          </tr>
+
+          <tr *ngIf="movimientosFiltrados.length === 0">
+            <td colspan="6" class="tabla-vacia">
+              No hay movimientos para mostrar.
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+
+    </div>
+
+  </section>
+
+</main>
