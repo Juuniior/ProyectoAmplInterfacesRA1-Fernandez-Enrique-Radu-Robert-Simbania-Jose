@@ -6,4 +6,10 @@ export interface Movimiento {
   fecha: string;
   importe: number;
   tipo: 'Ingreso' | 'Gasto';
+  /**
+   * Si el movimiento es el cobro de una factura, id de esa factura.
+   * Es lo que une Movimientos con Facturas: una factura está pagada
+   * cuando existe un movimiento con su facturaId.
+   */
+  facturaId?: number;
 }

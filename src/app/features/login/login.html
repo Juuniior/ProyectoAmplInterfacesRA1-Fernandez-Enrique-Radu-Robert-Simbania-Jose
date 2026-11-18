@@ -1,107 +1,175 @@
 <main class="acceso">
   <div class="acceso__tarjeta">
 
-    <div class="acceso__pestañas" role="tablist">
+    @if (usuario(); as u) {
+      <section class="acceso__formulario">
+        <p class="acceso__saludo">Hola, <strong>{{ u.nombre }}</strong></p>
+        <p class="acceso__detalle">Has iniciado sesión como {{ u.email }}.</p>
+        <button type="button" class="acceso__boton" (click)="cerrarSesion()">
+          Cerrar sesión
+        </button>
+      </section>
+    } @else {
 
-      <button
-        type="button"
-        class="acceso__pestaña"
-        [class.acceso__pestaña--activa]="modo === 'login'"
-        (click)="cambiarModo('login')">
-        Iniciar sesión
-      </button>
-
-      <button
-        type="button"
-        class="acceso__pestaña"
-        [class.acceso__pestaña--activa]="modo === 'registro'"
-        (click)="cambiarModo('registro')">
-        Registrarse
-      </button>
-
-    </div>
-
-    @if (modo === 'login') {
-      <form class="acceso__formulario">
-
-        <label class="acceso__etiqueta" for="login-email">
-          Correo electrónico
-        </label>
-
-        <input
-          class="acceso__campo"
-          id="login-email"
-          type="email"
-          placeholder="tucorreo@ejemplo.com">
-
-        <label class="acceso__etiqueta" for="login-password">
-          Contraseña
-        </label>
-
-        <input
-          class="acceso__campo"
-          id="login-password"
-          type="password"
-          placeholder="••••••••">
-
-        <a
-          class="acceso__enlace-secundario"
-          aria-disabled="true"
-          tabindex="-1">
-          ¿Has olvidado tu contraseña?
-        </a>
-
+      <div class="acceso__pestañas" role="tablist">
         <button
-          type="submit"
-          class="acceso__boton"
-          disabled>
-          Entrar
+          type="button"
+          role="tab"
+          class="acceso__pestaña"
+          [class.acceso__pestaña--activa]="modo() === 'login'"
+          [attr.aria-selected]="modo() === 'login'"
+          (click)="cambiarModo('login')">
+          Iniciar sesión
         </button>
 
-      </form>
-    }
-
-    @if (modo === 'registro') {
-      <form class="acceso__formulario">
-
-        <label class="acceso__etiqueta" for="registro-nombre">
-          Nombre completo
-        </label>
-
-        <input
-          class="acceso__campo"
-          id="registro-nombre"
-          type="text"
-          placeholder="Nombre y apellidos">
-
-        <label class="acceso__etiqueta" for="registro-email">
-          Correo electrónico
-        </label>
-
-        <input
-          class="acceso__campo"
-          id="registro-email"
-          type="email"
-          placeholder="tucorreo@ejemplo.com">
-
-        <label class="acceso__etiqueta" for="registro-password">
-          Contraseña
-        </label>
-
-        <input
-          class="acceso__campo"
-          id="registro-password"
-          type="password"
-          placeholder="••••••••">
-
         <button
-          type="submit"
-          class="acceso__boton"
-          disabled>
-          Crear cuenta
+          type="button"
+          role="tab"
+          class="acceso__pestaña"
+          [class.acceso__pestaña--activa]="modo() === 'registro'"
+          [attr.aria-selected]="modo() === 'registro'"
+          (click)="cambiarModo('registro')">
+          Registrarse
         </button>
+      </div>
 
-      </form>
+      @if (mensaje()) {
+        <p class="acceso__aviso acceso__aviso--ok" role="status">{{ mensaje() }}</p>
+      }
+      @if (error()) {
+        <p class="acceso__aviso acceso__aviso--error" role="alert">{{ error() }}</p>
+      }
+
+      @if (modo() === 'login') {
+        <form class="acceso__formulario" [formGroup]="formLogin" (ngSubmit)="iniciarSesion()" novalidate>
+
+          <label class="acceso__etiqueta" for="login-email">Correo electrónico</label>
+          <input
+            class="acceso__campo"
+            [class.acceso__campo--error]="loginInvalido('email')"
+            id="login-email"
+            type="email"
+            autocomplete="email"
+            placeholder="tucorreo@ejemplo.com"
+            formControlName="email">
+          @if (loginInvalido('email')) {
+            <span class="acceso__error">Introduce un correo válido.</span>
+          }
+
+          <label class="acceso__etiqueta" for="login-password">Contraseña</label>
+          <input
+            class="acceso__campo"
+            [class.acceso__campo--error]="loginInvalido('password')"
+            id="login-password"
+            type="password"
+            autocomplete="current-password"
+            placeholder="••••••••"
+            formControlName="password">
+          @if (loginInvalido('password')) {
+            <span class="acceso__error">La contraseña es obligatoria.</span>
+          }
+
+          <a class="acceso__enlace-secundario" aria-disabled="true" tabindex="-1">
+            ¿Has olvidado tu contraseña?
+          </a>
+
+          <button type="submit" class="acceso__boton" [disabled]="enviando()">
+            {{ enviando() ? 'Entrando…' : 'Entrar' }}
+          </button>
+        </form>
+      }
+
+      @if (modo() === 'registro') {
+        <form class="acceso__formulario" [formGroup]="formRegistro" (ngSubmit)="registrar()" novalidate>
+
+          <label class="acceso__etiqueta" for="registro-nombre">Nombre completo</label>
+          <input
+            class="acceso__campo"
+            [class.acceso__campo--error]="invalido('nombre')"
+            id="registro-nombre"
+            type="text"
+            autocomplete="name"
+            placeholder="Nombre y apellidos"
+            formControlName="nombre">
+          @if (invalido('nombre')) {
+            <span class="acceso__error">El nombre debe tener al menos 3 caracteres.</span>
+          }
+
+          <label class="acceso__etiqueta" for="registro-email">Correo electrónico</label>
+          <input
+            class="acceso__campo"
+            [class.acceso__campo--error]="invalido('email')"
+            id="registro-email"
+            type="email"
+            autocomplete="email"
+            placeholder="tucorreo@ejemplo.com"
+            formControlName="email">
+          @if (invalido('email')) {
+            <span class="acceso__error">Introduce un correo válido.</span>
+          }
+
+          <label class="acceso__etiqueta" for="registro-confirmar-email">Repite el correo</label>
+          <input
+            class="acceso__campo"
+            [class.acceso__campo--error]="invalido('confirmarEmail') || noCoinciden('emailsDistintos', 'confirmarEmail')"
+            id="registro-confirmar-email"
+            type="email"
+            autocomplete="email"
+            formControlName="confirmarEmail">
+          @if (noCoinciden('emailsDistintos', 'confirmarEmail')) {
+            <span class="acceso__error">Los correos no coinciden.</span>
+          } @else if (invalido('confirmarEmail')) {
+            <span class="acceso__error">Repite el correo.</span>
+          }
+
+          <label class="acceso__etiqueta" for="registro-fecha">Fecha de nacimiento</label>
+          <input
+            class="acceso__campo"
+            [class.acceso__campo--error]="invalido('fechaNacimiento')"
+            id="registro-fecha"
+            type="date"
+            autocomplete="bday"
+            formControlName="fechaNacimiento">
+          @if (invalido('fechaNacimiento')) {
+            <span class="acceso__error">
+              {{ formRegistro.controls.fechaNacimiento.hasError('fechaFutura')
+                ? 'La fecha no puede ser futura.'
+                : 'La fecha de nacimiento es obligatoria.' }}
+            </span>
+          }
+
+          <label class="acceso__etiqueta" for="registro-password">Contraseña</label>
+          <input
+            class="acceso__campo"
+            [class.acceso__campo--error]="invalido('password')"
+            id="registro-password"
+            type="password"
+            autocomplete="new-password"
+            placeholder="Mínimo 8 caracteres"
+            formControlName="password">
+          @if (invalido('password')) {
+            <span class="acceso__error">La contraseña debe tener al menos 8 caracteres.</span>
+          }
+
+          <label class="acceso__etiqueta" for="registro-confirmar-password">Repite la contraseña</label>
+          <input
+            class="acceso__campo"
+            [class.acceso__campo--error]="invalido('confirmarPassword') || noCoinciden('passwordsDistintas', 'confirmarPassword')"
+            id="registro-confirmar-password"
+            type="password"
+            autocomplete="new-password"
+            formControlName="confirmarPassword">
+          @if (noCoinciden('passwordsDistintas', 'confirmarPassword')) {
+            <span class="acceso__error">Las contraseñas no coinciden.</span>
+          } @else if (invalido('confirmarPassword')) {
+            <span class="acceso__error">Repite la contraseña.</span>
+          }
+
+          <button type="submit" class="acceso__boton" [disabled]="enviando()">
+            {{ enviando() ? 'Creando cuenta…' : 'Crear cuenta' }}
+          </button>
+        </form>
+      }
     }
 
   </div>

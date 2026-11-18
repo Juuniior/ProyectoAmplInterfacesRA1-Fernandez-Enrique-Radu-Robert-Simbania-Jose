@@ -114,6 +114,10 @@
       </div>
     </div>
 
+    <p class="aviso" *ngIf="aviso" role="status">
+      {{ aviso }} <a routerLink="/facturas">Ver facturas</a>
+    </p>
+
     <div class="tabla-contenedor">
 
       <table>
@@ -132,7 +136,17 @@
 
           <tr *ngFor="let movimiento of movimientosFiltrados">
 
-            <td>{{ movimiento.concepto }}</td>
+            <td>
+              {{ movimiento.concepto }}
+              <a
+                *ngIf="numeroFactura(movimiento) as numero"
+                class="enlace-factura"
+                routerLink="/facturas"
+                [attr.aria-label]="'Ver la factura ' + numero"
+              >
+                Factura {{ numero }}
+              </a>
+            </td>
 
             <td>{{ movimiento.categoria }}</td>
 

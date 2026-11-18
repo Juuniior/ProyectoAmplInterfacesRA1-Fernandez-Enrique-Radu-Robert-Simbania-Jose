@@ -1,0 +1,227 @@
+<main class="facturas">
+
+  <!-- Título de la página -->
+  <section class="facturas__bienvenida">
+    <h1>Facturas</h1>
+    <p>Emite facturas, controla los cobros pendientes y registra los pagos.</p>
+  </section>
+
+  <!-- Tarjetas de resumen -->
+  <section class="facturas__resumen" aria-label="Resumen de facturación">
+    <article class="tarjeta">
+      <h2 class="tarjeta__titulo">Facturado este mes</h2>
+      <p class="tarjeta__importe">{{ resumen().facturadoMes | number:'1.2-2' }} €</p>
+    </article>
+
+    <article class="tarjeta">
+      <h2 class="tarjeta__titulo">Pendiente de cobro</h2>
+      <p class="tarjeta__importe tarjeta__importe--pendiente">
+        {{ resumen().pendienteCobro | number:'1.2-2' }} €
+      </p>
+    </article>
+
+    <article class="tarjeta">
+      <h2 class="tarjeta__titulo">Vencidas</h2>
+      <p class="tarjeta__importe tarjeta__importe--vencida">
+        {{ resumen().vencidasCantidad }}
+        <span class="tarjeta__detalle">· {{ resumen().vencidasImporte | number:'1.2-2' }} €</span>
+      </p>
+    </article>
+  </section>
+
+  @if (aviso(); as a) {
+    <p class="facturas__aviso" role="status">
+      <span>{{ a.texto }}@if (a.enlaceMovimientos) { <a routerLink="/movimientos">Movimientos</a>.}</span>
+      <button type="button" class="facturas__aviso-cerrar" (click)="aviso.set(null)" aria-label="Cerrar aviso">×</button>
+    </p>
+  }
+
+  <!-- Formulario de nueva factura -->
+  <section class="facturas__bloque">
+    <h2>Nueva factura <span class="facturas__numero">{{ numeroPrevisto }}</span></h2>
+
+    <form [formGroup]="formulario" (ngSubmit)="crearFactura()" novalidate>
+
+      <div class="formulario__campos">
+        <div class="campo campo--ancho">
+          <label for="cliente">Cliente</label>
+          <input id="cliente" type="text" formControlName="cliente" placeholder="Nombre o razón social"
+                 [class.campo--error]="campoInvalido(formulario.controls.cliente)">
+          @if (campoInvalido(formulario.controls.cliente)) {
+            <span class="campo__error">Indica el cliente (mínimo 2 caracteres).</span>
+          }
+        </div>
+
+        <div class="campo">
+          <label for="fechaEmision">Fecha de emisión</label>
+          <input id="fechaEmision" type="date" formControlName="fechaEmision"
+                 [class.campo--error]="campoInvalido(formulario.controls.fechaEmision)">
+          @if (campoInvalido(formulario.controls.fechaEmision)) {
+            <span class="campo__error">La fecha de emisión es obligatoria.</span>
+          }
+        </div>
+
+        <div class="campo">
+          <label for="fechaVencimiento">Fecha de vencimiento</label>
+          <input id="fechaVencimiento" type="date" formControlName="fechaVencimiento"
+                 [class.campo--error]="campoInvalido(formulario.controls.fechaVencimiento) || formulario.hasError('vencimientoAnterior')">
+          @if (formulario.hasError('vencimientoAnterior')) {
+            <span class="campo__error">No puede ser anterior a la fecha de emisión.</span>
+          } @else if (campoInvalido(formulario.controls.fechaVencimiento)) {
+            <span class="campo__error">La fecha de vencimiento es obligatoria.</span>
+          }
+        </div>
+      </div>
+
+      <!-- Líneas de la factura -->
+      <fieldset class="lineas">
+        <legend>Conceptos</legend>
+
+        <div class="lineas__cabecera" aria-hidden="true">
+          <span>Descripción</span>
+          <span>Cantidad</span>
+          <span>Precio (€)</span>
+          <span class="lineas__derecha">Subtotal</span>
+          <span></span>
+        </div>
+
+        <div formArrayName="lineas">
+          @for (linea of lineas.controls; track linea; let i = $index) {
+            <div class="lineas__fila" [formGroupName]="i">
+              <input type="text" formControlName="descripcion" placeholder="Ej. Diseño de logotipo"
+                     [attr.aria-label]="'Descripción de la línea ' + (i + 1)"
+                     [class.campo--error]="campoInvalido(linea.get('descripcion'))">
+              <input type="number" formControlName="cantidad" min="1" step="1"
+                     [attr.aria-label]="'Cantidad de la línea ' + (i + 1)"
+                     [class.campo--error]="campoInvalido(linea.get('cantidad'))">
+              <input type="number" formControlName="precioUnitario" min="0.01" step="0.01" placeholder="0,00"
+                     [attr.aria-label]="'Precio unitario de la línea ' + (i + 1)"
+                     [class.campo--error]="campoInvalido(linea.get('precioUnitario'))">
+              <span class="lineas__subtotal">{{ subtotal(i) | number:'1.2-2' }} €</span>
+              <button type="button" class="lineas__quitar" (click)="quitarLinea(i)"
+                      [disabled]="lineas.length === 1"
+                      [attr.aria-label]="'Quitar la línea ' + (i + 1)">×</button>
+            </div>
+            @if (linea.invalid && linea.touched) {
+              <span class="campo__error lineas__error">
+                Completa la descripción, una cantidad de al menos 1 y un precio mayor que 0.
+              </span>
+            }
+          }
+        </div>
+
+        <button type="button" class="boton boton--secundario" (click)="agregarLinea()">+ Añadir línea</button>
+      </fieldset>
+
+      <!-- Impuestos y totales -->
+      <div class="facturas__pie">
+        <div class="impuestos">
+          <div class="campo">
+            <label for="tipoIva">IVA</label>
+            <select id="tipoIva" formControlName="tipoIva">
+              @for (tipo of tiposIva; track tipo) {
+                <option [ngValue]="tipo">{{ tipo }} %</option>
+              }
+            </select>
+          </div>
+
+          <label class="casilla">
+            <input type="checkbox" formControlName="aplicaIrpf">
+            Aplicar retención de IRPF ({{ retencionIrpf }} %)
+          </label>
+        </div>
+
+        <dl class="totales" aria-live="polite">
+          <div><dt>Base imponible</dt><dd>{{ totales.baseImponible | number:'1.2-2' }} €</dd></div>
+          <div><dt>IVA ({{ formulario.controls.tipoIva.value }} %)</dt><dd>{{ totales.cuotaIva | number:'1.2-2' }} €</dd></div>
+          @if (formulario.controls.aplicaIrpf.value) {
+            <div><dt>Retención IRPF ({{ retencionIrpf }} %)</dt><dd>−{{ totales.retencionIrpf | number:'1.2-2' }} €</dd></div>
+          }
+          <div class="totales__total"><dt>Total</dt><dd>{{ totales.total | number:'1.2-2' }} €</dd></div>
+        </dl>
+      </div>
+
+      <button class="boton boton--principal" type="submit">Crear factura</button>
+    </form>
+  </section>
+
+  <!-- Listado de facturas -->
+  <section class="facturas__bloque">
+
+    <div class="listado__cabecera">
+      <h2>Listado de facturas</h2>
+      <input class="listado__buscador" type="search" placeholder="Buscar por cliente o número"
+             aria-label="Buscar facturas por cliente o número"
+             [value]="busqueda()" (input)="busqueda.set($any($event.target).value)">
+    </div>
+
+    <div class="filtros" role="group" aria-label="Filtrar por estado">
+      @for (opcion of filtros; track opcion) {
+        <button type="button" class="filtros__boton"
+                [class.filtros__boton--activo]="filtro() === opcion"
+                [attr.aria-pressed]="filtro() === opcion"
+                (click)="filtro.set(opcion)">
+          {{ opcion }} <span class="filtros__conteo">{{ conteo()[opcion] }}</span>
+        </button>
+      }
+    </div>
+
+    <div class="tabla-contenedor">
+      <table>
+        <thead>
+          <tr>
+            <th>Número</th>
+            <th>Cliente</th>
+            <th>Emisión</th>
+            <th>Vencimiento</th>
+            <th class="derecha">Total</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (fila of facturasFiltradas(); track fila.factura.id) {
+            <tr>
+              <td class="numero">{{ fila.factura.numero }}</td>
+              <td>{{ fila.factura.cliente }}</td>
+              <td>{{ fila.factura.fechaEmision | date:'dd/MM/yyyy' }}</td>
+              <td [class.vencida]="fila.estado === 'Vencida'">
+                {{ fila.factura.fechaVencimiento | date:'dd/MM/yyyy' }}
+              </td>
+              <td class="derecha importe">{{ fila.total | number:'1.2-2' }} €</td>
+              <td>
+                <span class="etiqueta"
+                      [class.etiqueta--pagada]="fila.estado === 'Pagada'"
+                      [class.etiqueta--pendiente]="fila.estado === 'Pendiente'"
+                      [class.etiqueta--vencida]="fila.estado === 'Vencida'">
+                  {{ fila.estado }}
+                </span>
+              </td>
+              <td class="acciones">
+                @if (fila.factura.estado === 'Pendiente') {
+                  <button type="button" class="boton-accion boton-accion--cobrar"
+                          (click)="marcarPagada(fila.factura)"
+                          [attr.aria-label]="'Marcar como pagada la factura ' + fila.factura.numero">
+                    Marcar como pagada
+                  </button>
+                  <button type="button" class="boton-accion boton-accion--eliminar"
+                          (click)="eliminar(fila.factura)"
+                          [attr.aria-label]="'Eliminar la factura ' + fila.factura.numero">
+                    Eliminar
+                  </button>
+                } @else {
+                  <span class="cobrada">Cobrada el {{ fila.factura.fechaPago | date:'dd/MM/yyyy' }}</span>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="tabla-vacia">No hay facturas que coincidan con el filtro.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</main>

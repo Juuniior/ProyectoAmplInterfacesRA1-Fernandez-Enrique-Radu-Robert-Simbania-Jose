@@ -37,6 +37,15 @@ export class MovimientoService {
       fecha: '2026-11-05',
       importe: 200,
       tipo: 'Ingreso'
+    },
+    {
+      id: 5,
+      concepto: 'Cobro factura F-2026-001 · Estudio Lumen S.L.',
+      categoria: 'Trabajo',
+      fecha: '2026-10-30',
+      importe: 1399.2,
+      tipo: 'Ingreso',
+      facturaId: 1
     }
   ]);
 

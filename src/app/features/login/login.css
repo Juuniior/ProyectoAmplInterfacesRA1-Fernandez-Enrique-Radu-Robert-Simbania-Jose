@@ -82,6 +82,39 @@
  font-size: 14px;
  font-weight: 600;
  padding: 12px;
+ cursor: pointer;
+}
+.acceso__boton:disabled {
  cursor: not-allowed;
  opacity: 0.6;
+}
+.acceso__campo--error {
+ border-color: #b3261e;
+}
+.acceso__error {
+ font-size: 12px;
+ color: #b3261e;
+}
+.acceso__aviso {
+ font-size: 13px;
+ margin: 0 20px;
+ padding: 10px 12px;
+ border-radius: 8px;
+}
+.acceso__aviso--ok {
+ background-color: var(--color-acento-suave);
+ color: var(--color-acento);
+}
+.acceso__aviso--error {
+ background-color: #fbeaea;
+ color: #b3261e;
+}
+.acceso__saludo {
+ font-size: 16px;
+ margin: 8px 0 0;
+}
+.acceso__detalle {
+ font-size: 13px;
+ color: var(--color-texto-suave);
+ margin: 0;
 }

@@ -23,9 +23,9 @@ describe('Home', () => {
   });
 
   it('should calculate income, expenses and current balance', () => {
-    expect(component.totalIngresos).toBe(2000);
+    expect(component.totalIngresos).toBeCloseTo(3399.2, 2);
     expect(component.totalGastos).toBe(735);
-    expect(component.saldoActual).toBe(1265);
+    expect(component.saldoActual).toBeCloseTo(2664.2, 2);
   });
 
   it('should order the latest movements by date', () => {
@@ -42,8 +42,8 @@ describe('Home', () => {
       tipo: 'Ingreso'
     });
 
-    expect(component.totalIngresos).toBe(2100);
-    expect(component.saldoActual).toBe(1365);
+    expect(component.totalIngresos).toBeCloseTo(3499.2, 2);
+    expect(component.saldoActual).toBeCloseTo(2764.2, 2);
     expect(component.ultimosMovimientos[0].concepto).toBe('Venta');
   });
 

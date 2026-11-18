@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { Movimientos } from './movimientos';
 import { MovimientoService } from '../../core/services/movimiento.service';
 
@@ -9,7 +10,8 @@ describe('Movimientos', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Movimientos]
+      imports: [Movimientos],
+      providers: [provideRouter([])]
     }).compileComponents();
 
     fixture = TestBed.createComponent(Movimientos);
@@ -23,8 +25,8 @@ describe('Movimientos', () => {
   });
 
   it('should show the initial movements', () => {
-    expect(component.cantidadMovimientos).toBe(4);
-    expect(component.movimientosFiltrados.length).toBe(4);
+    expect(component.cantidadMovimientos).toBe(5);
+    expect(component.movimientosFiltrados.length).toBe(5);
   });
 
   it('should add a valid movement to the shared list', () => {
@@ -36,9 +38,9 @@ describe('Movimientos', () => {
 
     component.agregarMovimiento();
 
-    expect(component.cantidadMovimientos).toBe(5);
-    expect(component.movimientos[4].concepto).toBe('Venta de material');
-    expect(component.movimientos[4].importe).toBe(125.5);
+    expect(component.cantidadMovimientos).toBe(6);
+    expect(component.movimientos[5].concepto).toBe('Venta de material');
+    expect(component.movimientos[5].importe).toBe(125.5);
     expect(component.nuevoConcepto).toBe('');
     expect(component.nuevoImporte).toBeNull();
   });
@@ -47,24 +49,39 @@ describe('Movimientos', () => {
     component.nuevoConcepto = '   ';
     component.nuevoImporte = 20;
     component.agregarMovimiento();
-    expect(component.cantidadMovimientos).toBe(4);
+    expect(component.cantidadMovimientos).toBe(5);
 
     component.nuevoConcepto = 'Movimiento incorrecto';
     component.nuevoImporte = 0;
     component.agregarMovimiento();
-    expect(component.cantidadMovimientos).toBe(4);
+    expect(component.cantidadMovimientos).toBe(5);
   });
 
   it('should filter movements by type', () => {
     component.filtroTipo = 'Ingreso';
-    expect(component.movimientosFiltrados.length).toBe(2);
+    expect(component.movimientosFiltrados.length).toBe(3);
     expect(component.movimientosFiltrados.every(m => m.tipo === 'Ingreso')).toBe(true);
   });
 
   it('should remove a movement from the shared list', () => {
     component.eliminarMovimiento(1);
-    expect(component.cantidadMovimientos).toBe(3);
+    expect(component.cantidadMovimientos).toBe(4);
     expect(movimientoService.movimientos().some(m => m.id === 1)).toBe(false);
+  });
+
+  it('should link invoice payments to their invoice', () => {
+    fixture.detectChanges();
+    const enlace = fixture.nativeElement.querySelector('.enlace-factura');
+    expect(enlace?.textContent).toContain('Factura F-2026-001');
+  });
+
+  it('should warn that the invoice is pending again when its payment is removed', () => {
+    const cobro = movimientoService.movimientos().find(m => m.facturaId === 1)!;
+    component.eliminarMovimiento(cobro.id);
+    expect(component.aviso).toContain('F-2026-001');
+
+    component.eliminarMovimiento(2);
+    expect(component.aviso).toBeNull();
   });
 
   it('should show the form and the movement list', () => {

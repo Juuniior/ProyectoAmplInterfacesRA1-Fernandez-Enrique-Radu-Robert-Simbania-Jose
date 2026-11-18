@@ -1,4 +1,25 @@
-# Proyecto11
+# ContaLite
+
+Aplicación Angular para registrar ingresos y gastos (Proyecto Ampliación de Interfaces · RA1).
+
+**Autores:** Enrique Fernández, Robert Radu y José Simbaña.
+
+## Estructura
+
+```
+src/app/
+├── core/
+│   ├── auth/          Autenticación (contrato, implementación local y token)
+│   ├── interfaces/    Modelos de datos (Movimiento, Factura)
+│   ├── services/      Servicios compartidos (MovimientoService, FacturaService)
+│   └── utils/         Cálculos de facturas (funciones puras)
+├── features/          Páginas: home, movimientos, facturas, login
+└── shared/components/ Componentes reutilizables: header, footer, boton-cta
+```
+
+Más detalle en [`docs/login-registro.md`](docs/login-registro.md) y [`docs/facturas.md`](docs/facturas.md).
+
+## Angular CLI
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.2.0.
 

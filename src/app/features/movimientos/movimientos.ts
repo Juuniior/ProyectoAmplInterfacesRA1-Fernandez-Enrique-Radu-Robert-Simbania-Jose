@@ -1,22 +1,28 @@
 import { Component, LOCALE_ID, inject } from '@angular/core';
 import { CommonModule, registerLocaleData } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import localeEs from '@angular/common/locales/es';
 import { Movimiento } from '../../core/interfaces/movimiento.interface';
 import { MovimientoService } from '../../core/services/movimiento.service';
+import { FacturaService } from '../../core/services/factura.service';
 
 registerLocaleData(localeEs);
 
 @Component({
   selector: 'app-movimientos',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   providers: [{ provide: LOCALE_ID, useValue: 'es-ES' }],
   templateUrl: './movimientos.html',
   styleUrl: './movimientos.css'
 })
 export class Movimientos {
   private readonly movimientoService = inject(MovimientoService);
+  private readonly facturaService = inject(FacturaService);
+
+  // Aviso que se muestra al borrar el cobro de una factura.
+  aviso: string | null = null;
 
   // Lista compartida con Home.
   get movimientos(): Movimiento[] {
@@ -83,8 +89,23 @@ export class Movimientos {
     this.filtroTipo = 'Todos';
   }
 
-  // Elimina un movimiento por su identificador.
+  // Número de la factura a la que corresponde el movimiento (si es un cobro).
+  numeroFactura(movimiento: Movimiento): string | undefined {
+    return movimiento.facturaId !== undefined
+      ? this.facturaService.numeroDe(movimiento.facturaId)
+      : undefined;
+  }
+
+  // Elimina un movimiento por su identificador. Si era el cobro de una factura,
+  // esa factura vuelve a estar pendiente (FacturaService lo calcula solo).
   eliminarMovimiento(id: number): void {
+    const movimiento = this.movimientos.find(m => m.id === id);
+    const numero = movimiento ? this.numeroFactura(movimiento) : undefined;
+
     this.movimientoService.eliminarMovimiento(id);
+
+    this.aviso = numero
+      ? `Has eliminado el cobro de la factura ${numero}, que vuelve a estar pendiente de cobro.`
+      : null;
   }
 }

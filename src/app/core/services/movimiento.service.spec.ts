@@ -14,7 +14,7 @@ describe('MovimientoService', () => {
   });
 
   it('should provide the initial example movements', () => {
-    expect(service.movimientos().length).toBe(4);
+    expect(service.movimientos().length).toBe(5);
   });
 
   it('should add a movement and assign it an id', () => {
@@ -26,15 +26,15 @@ describe('MovimientoService', () => {
       tipo: 'Ingreso'
     });
 
-    expect(service.movimientos().length).toBe(5);
-    expect(service.movimientos()[4].id).toBe(5);
-    expect(service.movimientos()[4].concepto).toBe('Venta');
+    expect(service.movimientos().length).toBe(6);
+    expect(service.movimientos()[5].id).toBe(6);
+    expect(service.movimientos()[5].concepto).toBe('Venta');
   });
 
   it('should remove a movement by its id', () => {
     service.eliminarMovimiento(2);
 
-    expect(service.movimientos().length).toBe(3);
+    expect(service.movimientos().length).toBe(4);
     expect(service.movimientos().some(movimiento => movimiento.id === 2)).toBe(false);
   });
 });
