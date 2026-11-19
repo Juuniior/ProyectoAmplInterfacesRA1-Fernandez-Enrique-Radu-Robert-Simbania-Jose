@@ -1,0 +1,65 @@
+.barra {
+  display: grid;
+  grid-template-columns: 110px 1fr 100px;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: none;
+  font: inherit;
+  font-family: 'Segoe UI', sans-serif;
+  color: #263238;
+  text-align: left;
+  cursor: pointer;
+}
+
+.barra:hover {
+  background-color: #f5f7f8;
+}
+.barra--activa {
+  background-color: #eef3f6;
+  border-color: #cfd8dc;
+}
+
+.barra__etiqueta {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.barra__pista {
+  display: block;
+  height: 12px;
+  border-radius: 6px;
+  background-color: #eceff1;
+  overflow: hidden;
+}
+
+.barra__relleno {
+  display: block;
+  height: 100%;
+  border-radius: 6px;
+}
+.barra__relleno--ingreso {
+  background-color: #66bb6a;
+}
+.barra__relleno--gasto {
+  background-color: #ef5350;
+}
+
+.barra__importe {
+  font-size: 14px;
+  font-weight: 600;
+  text-align: right;
+}
+
+@media (max-width: 520px) {
+  .barra {
+    grid-template-columns: 1fr 90px;
+  }
+  .barra__pista {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}

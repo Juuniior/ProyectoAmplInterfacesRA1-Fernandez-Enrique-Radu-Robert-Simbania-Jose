@@ -107,3 +107,29 @@ npm test          # ng test (Vitest)
 | `features/login/login.spec.ts`          | Estado inicial, entradas y salidas, cambio de pestaña, cada validación, registro y login con éxito y con error, cierre de sesión, recuperación de la sesión. Usa un servicio de autenticación falso. |
 | `core/auth/autenticacion-local.spec.ts` | Registro, hash con sal (la contraseña no se guarda), normalización del correo, correo duplicado, login correcto e incorrecto, cierre de sesión, datos corruptos, entorno sin Web Crypto.             |
 | `core/auth/autenticacion.token.spec.ts` | Implementación por defecto y sustitución del servicio.                                                                                                                                               |
+
+## Protección de rutas (`autenticadoGuard`)
+
+Todas las páginas menos `/login` exigen haber iniciado sesión. Lo hace un *guard* funcional:
+`src/app/core/auth/autenticado.guard.ts`.
+
+```ts
+// app.routes.ts
+{ path: 'informes', component: Informes, canActivate: [autenticadoGuard] }
+```
+
+| Situación | Resultado |
+|---|---|
+| Hay sesión | Se abre la página. |
+| No hay sesión | Redirige a `/login?returnUrl=<página pedida>`. |
+| Se inicia sesión en `/login` | `Login` navega a `returnUrl`, o a `/home` si no hay. |
+
+- `returnUrl` llega a `Login` como `@Input` gracias a `withComponentInputBinding()` (en `app.config.ts`).
+  Solo se acepta si es una ruta interna (empieza por `/` y no por `//` ni `/\`); si no, se ignora.
+- La sesión está en `sessionStorage`, que no existe en el servidor. Por eso en `app.routes.server.ts` solo
+  `/login` se prerenderiza y el resto de rutas usan `RenderMode.Client`: el navegador ejecuta el guard.
+- Es una protección de interfaz, no de seguridad: los datos de ContaLite viven en el navegador.
+- Para proteger una página nueva basta con añadir `canActivate: [autenticadoGuard]` a su ruta.
+
+Pruebas: `core/auth/autenticado.guard.spec.ts` (el guard solo) y `app.routes.spec.ts` (cada página con y
+sin sesión, y la vuelta a la página pedida tras iniciar sesión).

@@ -1,0 +1,102 @@
+<main class="informes">
+  <section class="informes__cabecera">
+    <div>
+      <h1>Informes</h1>
+      <p>Resumen de tus ingresos, gastos y facturas.</p>
+    </div>
+    <app-selector-periodo
+      etiqueta="Periodo del informe"
+      [opciones]="opcionesPeriodo"
+      [valor]="periodo()"
+      (valorCambiado)="cambiarPeriodo($event)"
+    />
+  </section>
+
+  <section class="informes__resumen" aria-label="Resumen del periodo">
+    <app-tarjeta-resumen titulo="Ingresos" tipo="ingreso" [importe]="totalIngresos()" />
+    <app-tarjeta-resumen titulo="Gastos" tipo="gasto" [importe]="totalGastos()" />
+    <app-tarjeta-resumen titulo="Saldo" tipo="saldo" [importe]="saldo()" />
+  </section>
+
+  @if (movimientosPeriodo().length === 0) {
+    <p class="informes__vacio" role="status">No hay movimientos en este periodo.</p>
+  } @else {
+    <div class="informes__categorias">
+      <section class="informes__panel">
+        <h2>Gastos por categoría</h2>
+        @for (fila of gastosPorCategoria(); track fila.categoria) {
+          <app-barra-categoria
+            tipo="gasto"
+            [etiqueta]="fila.categoria"
+            [importe]="fila.importe"
+            [porcentaje]="fila.porcentaje"
+            [activa]="esActiva('Gasto', fila.categoria)"
+            (seleccionada)="alternarCategoria('Gasto', $event)"
+          />
+        } @empty {
+          <p class="informes__vacio">Sin gastos en este periodo.</p>
+        }
+      </section>
+
+      <section class="informes__panel">
+        <h2>Ingresos por categoría</h2>
+        @for (fila of ingresosPorCategoria(); track fila.categoria) {
+          <app-barra-categoria
+            tipo="ingreso"
+            [etiqueta]="fila.categoria"
+            [importe]="fila.importe"
+            [porcentaje]="fila.porcentaje"
+            [activa]="esActiva('Ingreso', fila.categoria)"
+            (seleccionada)="alternarCategoria('Ingreso', $event)"
+          />
+        } @empty {
+          <p class="informes__vacio">Sin ingresos en este periodo.</p>
+        }
+      </section>
+    </div>
+  }
+
+  @if (seleccion(); as elegida) {
+    <section class="informes__panel informes__detalle">
+      <h2>{{ elegida.tipo === 'Gasto' ? 'Gastos' : 'Ingresos' }} · {{ elegida.categoria }}</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Concepto</th>
+            <th class="informes__derecha">Importe</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (m of detalle(); track m.id) {
+            <tr>
+              <td>{{ m.fecha }}</td>
+              <td>{{ m.concepto }}</td>
+              <td class="informes__derecha">{{ euros(m.importe) }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+  }
+
+  <section class="informes__facturas">
+    <h2>Estado de las facturas</h2>
+    <div class="informes__resumen">
+      @for (fila of facturasPorEstado(); track fila.estado) {
+        <app-tarjeta-resumen
+          [titulo]="
+            fila.estado === 'Pendiente'
+              ? 'Pendientes de cobro'
+              : fila.estado === 'Vencida'
+                ? 'Vencidas'
+                : 'Cobradas'
+          "
+          [tipo]="tipoTarjetaEstado(fila.estado)"
+          [importe]="fila.importe"
+          [detalle]="textoFacturas(fila.cantidad)"
+        />
+      }
+    </div>
+  </section>
+</main>

@@ -16,6 +16,7 @@ import {
   ValidatorFn,
   Validators,
 } from '@angular/forms';
+import { Router } from '@angular/router';
 import { UsuarioPublico, ErrorAutenticacion } from '../../core/auth/autenticacion.model';
 import { AUTENTICACION } from '../../core/auth/autenticacion.token';
 
@@ -66,9 +67,16 @@ const normalizarEmail = (v: string) => v.trim().toLowerCase();
 export class Login implements OnInit {
   private readonly auth = inject(AUTENTICACION);
   private readonly fb = inject(FormBuilder);
+  private readonly router = inject(Router);
 
   /** Pestaña con la que arranca la pantalla. */
   @Input() modoInicial: ModoAcceso = 'login';
+
+  /**
+   * Página a la que volver tras iniciar sesión. La rellena el router con `?returnUrl=...`
+   * cuando `autenticadoGuard` redirige aquí. Si no hay (o no es una ruta interna), se va a Inicio.
+   */
+  @Input() returnUrl?: string;
 
   @Output() sesionIniciada = new EventEmitter<UsuarioPublico>();
   @Output() sesionCerrada = new EventEmitter<void>();
@@ -145,6 +153,7 @@ export class Login implements OnInit {
       this.usuario.set(usuario);
       this.formLogin.reset();
       this.sesionIniciada.emit(usuario);
+      await this.router.navigateByUrl(this.destino());
     });
   }
 
@@ -173,6 +182,13 @@ export class Login implements OnInit {
     campo: keyof typeof this.formRegistro.controls,
   ): boolean {
     return this.formRegistro.hasError(error) && this.formRegistro.controls[campo].touched;
+  }
+
+  /** Destino tras iniciar sesión: `returnUrl` si es una ruta interna segura; si no, Inicio. */
+  private destino(): string {
+    const url = this.returnUrl ?? '';
+    const esInterna = url.startsWith('/') && !url.startsWith('//') && !url.startsWith('/\\');
+    return esInterna ? url : '/home';
   }
 
   /** Ejecuta una operación del servicio mostrando su error en pantalla si falla. */
