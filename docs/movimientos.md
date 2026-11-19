@@ -31,7 +31,9 @@ Cada cuenta guarda **sus propios movimientos** en `localStorage` bajo la clave
 al cerrarla, deja de mostrar esos datos. Dos usuarios no comparten los movimientos:
 lo que añade o borra uno no afecta al otro.
 
-- La primera vez que entra un usuario nuevo, recibe su propia copia de los datos de ejemplo.
+- La primera vez que entra un usuario nuevo, recibe una copia de los movimientos y facturas
+  de ejemplo; en pantalla se marcan con la etiqueta **«Ejemplo»** y con un aviso en Inicio,
+  para que no se confundan con datos reales. Puede borrarlos o modificarlos.
 - Al no haber sesión (por ejemplo, en los tests), se usa un usuario ficticio `demo@contalite.local`.
 
 ## Pruebas

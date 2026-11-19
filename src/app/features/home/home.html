@@ -7,6 +7,14 @@
     <p>Controla tus ingresos y gastos de forma sencilla.</p>
   </section>
 
+  @if (hayDatosEjemplo) {
+    <div class="aviso-ejemplo" role="status">
+      <strong>Datos de ejemplo.</strong>
+      Los movimientos y facturas que ves vienen de la plantilla para que veas cómo
+      funciona la aplicación. No son datos reales: bórralos o añade los tuyos.
+    </div>
+  }
+
   <!-- Resumen económico -->
   <section class="home__resumen">
 
@@ -70,7 +78,12 @@
       <tbody>
         <tr *ngFor="let movimiento of ultimosMovimientos">
 
-          <td>{{ movimiento.concepto }}</td>
+          <td>
+            {{ movimiento.concepto }}
+            @if (movimiento.ejemplo) {
+              <span class="marca-ejemplo">Ejemplo</span>
+            }
+          </td>
 
           <td>{{ movimiento.categoria }}</td>
 

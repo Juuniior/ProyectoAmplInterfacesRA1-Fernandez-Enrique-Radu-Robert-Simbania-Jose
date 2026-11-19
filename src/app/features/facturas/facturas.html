@@ -183,7 +183,12 @@
           @for (fila of facturasFiltradas(); track fila.factura.id) {
             <tr>
               <td class="numero">{{ fila.factura.numero }}</td>
-              <td>{{ fila.factura.cliente }}</td>
+              <td>
+                {{ fila.factura.cliente }}
+                @if (fila.factura.ejemplo) {
+                  <span class="marca-ejemplo">Ejemplo</span>
+                }
+              </td>
               <td>{{ fila.factura.fechaEmision | date:'dd/MM/yyyy' }}</td>
               <td [class.vencida]="fila.estado === 'Vencida'">
                 {{ fila.factura.fechaVencimiento | date:'dd/MM/yyyy' }}

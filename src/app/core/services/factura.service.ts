@@ -8,7 +8,7 @@ import { DEMO_EMAIL, MovimientoService } from './movimiento.service';
 type FacturaGuardada = Omit<Factura, 'estado' | 'fechaPago'>;
 
 /**
- * Datos de ejemplo. Cada usuario recibe su PROPIA copia la primera vez que entra.
+ * Datos de ejemplo, usados solo por el usuario de demostración (sin sesión, en las pruebas).
  * La F-2026-001 está cobrada: su ingreso (facturaId: 1) está en los datos de
  * ejemplo de MovimientoService.
  */
@@ -206,8 +206,11 @@ export class FacturaService {
     }
 
     if (!Array.isArray(datos)) {
+      // Cada usuario nuevo recibe las facturas de ejemplo (marcadas como tales)
+      // para que vea cómo funciona la app sin partir de cero. Puede borrarlas.
       datos = FACTURAS_DEMO.map((factura) => ({
         ...factura,
+        ejemplo: true,
         lineas: factura.lineas.map((linea) => ({ ...linea })),
       }));
       // El usuario de demostración no se guarda: solo persisten los usuarios reales.

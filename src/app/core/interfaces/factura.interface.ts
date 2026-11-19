@@ -40,6 +40,8 @@ export interface Factura {
   estado: EstadoFactura;
   /** Fecha del movimiento de cobro (AAAA-MM-DD). Solo existe cuando está pagada. */
   fechaPago?: string;
+  /** `true` si viene de los datos de ejemplo de la plantilla, no de la persona. */
+  ejemplo?: boolean;
 }
 
 /** Datos que hacen falta para crear una factura (el resto lo pone el servicio). */

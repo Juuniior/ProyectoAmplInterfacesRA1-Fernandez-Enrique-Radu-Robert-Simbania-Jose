@@ -138,6 +138,9 @@
 
             <td>
               {{ movimiento.concepto }}
+              @if (movimiento.ejemplo) {
+                <span class="marca-ejemplo">Ejemplo</span>
+              }
               <a
                 *ngIf="numeroFactura(movimiento) as numero"
                 class="enlace-factura"

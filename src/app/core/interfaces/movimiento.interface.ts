@@ -12,4 +12,6 @@ export interface Movimiento {
    * cuando existe un movimiento con su facturaId.
    */
   facturaId?: number;
+  /** `true` si viene de los datos de ejemplo de la plantilla, no de la persona. */
+  ejemplo?: boolean;
 }

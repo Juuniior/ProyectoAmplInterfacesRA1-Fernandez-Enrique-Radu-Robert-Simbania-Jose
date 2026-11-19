@@ -1,1 +1,32 @@
 /* You can add global styles to this file, and also import other style files */
+
+/* Aviso de datos de ejemplo (página Inicio) */
+.aviso-ejemplo {
+  border: 1px dashed var(--acento, #b8860b);
+  background: color-mix(in srgb, #fbf3d5 60%, transparent);
+  color: #6b5b00;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+  font-size: 0.95rem;
+}
+.aviso-ejemplo strong {
+  color: #4f4410;
+}
+
+/* Etiqueta pequeña "Ejemplo" en tablas */
+.marca-ejemplo {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.05rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid #b8860b;
+  color: #6b5b00;
+  background: #fbf3d5;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  vertical-align: middle;
+  white-space: nowrap;
+}

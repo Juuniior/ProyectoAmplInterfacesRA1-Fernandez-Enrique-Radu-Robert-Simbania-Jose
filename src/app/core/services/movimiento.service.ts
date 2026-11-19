@@ -9,7 +9,7 @@ import { Movimiento } from '../interfaces/movimiento.interface';
  */
 export const DEMO_EMAIL = 'demo@contalite.local';
 
-/** Datos de ejemplo. Cada usuario recibe su PROPIA copia la primera vez que entra. */
+/** Datos de ejemplo, usados solo por el usuario de demostración (sin sesión, en las pruebas). */
 const MOVIMIENTOS_DEMO: Movimiento[] = [
   {
     id: 1,
@@ -128,7 +128,9 @@ export class MovimientoService {
     }
 
     if (!Array.isArray(datos)) {
-      datos = MOVIMIENTOS_DEMO.map((movimiento) => ({ ...movimiento }));
+      // Cada usuario nuevo recibe los movimientos de ejemplo (marcados como tales)
+      // para que vea cómo funciona la app sin partir de cero. Puede borrarlos.
+      datos = MOVIMIENTOS_DEMO.map((movimiento) => ({ ...movimiento, ejemplo: true }));
       // El usuario de demostración no se guarda: solo persisten los usuarios reales.
       if (email !== DEMO_EMAIL) {
         try {

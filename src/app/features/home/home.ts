@@ -47,4 +47,9 @@ export class Home {
       (a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime()
     );
   }
+
+  // ¿Quedan movimientos de ejemplo (de la plantilla) por mostrar? Si es así, se avisa.
+  get hayDatosEjemplo(): boolean {
+    return this.movimientos.some(movimiento => movimiento.ejemplo);
+  }
 }

@@ -61,9 +61,15 @@ describe('aislamiento de datos por usuario', () => {
     await esperarCarga();
   }
 
-  it('caduca cada usuario empieza con su propia copia de los datos de ejemplo', async () => {
-    // Ana añade un movimiento y una factura a su nombre.
+  it('cada usuario empieza con datos de ejemplo marcados, pero aislados', async () => {
+    // Ana empieza con los datos de la plantilla, marcados como ejemplo (no son suyos).
     await entrar(ANA);
+    expect(movimientos.movimientos().length).toBe(5);
+    expect(facturas.facturas().length).toBe(4);
+    expect(movimientos.movimientos().every((m) => m.ejemplo)).toBe(true);
+    expect(facturas.facturas().every((f) => f.ejemplo)).toBe(true);
+
+    // Lo que Ana añade no lleva la marca de ejemplo.
     movimientos.agregarMovimiento({
       concepto: 'Proyecto privado de Ana',
       categoria: 'Trabajo',
@@ -80,29 +86,38 @@ describe('aislamiento de datos por usuario', () => {
       aplicaIrpf: false,
     });
     expect(movimientos.movimientos().length).toBe(6);
+    expect(movimientos.movimientos()[5].ejemplo).toBeUndefined();
     expect(facturas.facturas().length).toBe(5);
 
-    // Luis entra: ve sus propios datos de ejemplo, NO los cambios de Ana.
+    // Luis entra: no ve nada de Ana; sus propios datos de ejemplo siguen marcados.
     await salir();
     await entrar(LUIS);
     expect(movimientos.movimientos().length).toBe(5);
     expect(facturas.facturas().length).toBe(4);
     expect(movimientos.movimientos().some((m) => m.concepto.includes('Ana'))).toBe(false);
     expect(facturas.facturas().some((f) => f.cliente === 'Solo de Ana')).toBe(false);
+    expect(movimientos.movimientos().every((m) => m.ejemplo)).toBe(true);
   });
 
-  it('los datos se guardan por separado y persisten al cerrar y volver a entrar', async () => {
+  it('los datos de cada usuario persisten al cerrar y volver a entrar', async () => {
     await entrar(ANA);
-    movimientos.eliminarMovimiento(1); // Ana borra su Nómina.
+    movimientos.agregarMovimiento({
+      concepto: 'Nómina de Ana',
+      categoria: 'Trabajo',
+      fecha: '2026-11-15',
+      importe: 1500,
+      tipo: 'Ingreso',
+    });
+    expect(movimientos.movimientos().length).toBe(6);
 
     await salir();
     await entrar(LUIS);
-    expect(movimientos.movimientos().length).toBe(5); // Luis sigue con las 5 de ejemplo.
+    expect(movimientos.movimientos().length).toBe(5); // Luis no ve nada de Ana
 
     await salir();
     await entrar(ANA);
-    expect(movimientos.movimientos().length).toBe(4); // Ana vuelve a ver su copia sin la Nómina.
-    expect(movimientos.movimientos().some((m) => m.id === 1)).toBe(false);
+    expect(movimientos.movimientos().length).toBe(6);
+    expect(movimientos.movimientos().some((m) => m.concepto === 'Nómina de Ana')).toBe(true);
 
     // Cada usuario guarda los datos en una clave distinta de localStorage.
     expect(localStorage.getItem('app.movimientos.ana@ejemplo.com')).not.toBeNull();
