@@ -1,0 +1,94 @@
+.informes {
+  font-family: 'Segoe UI', sans-serif;
+  color: #263238;
+  padding: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.informes__cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.informes__cabecera h1 {
+  font-size: 28px;
+  margin: 0 0 8px;
+}
+.informes__cabecera p {
+  color: #607d8b;
+  font-size: 15px;
+  margin: 0;
+}
+
+.informes__resumen {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.informes__categorias {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.informes__panel {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 30px;
+}
+
+.informes__categorias .informes__panel {
+  margin-bottom: 0;
+}
+
+.informes__panel h2,
+.informes__facturas h2 {
+  font-size: 20px;
+  margin: 0 0 16px;
+}
+
+.informes__vacio {
+  color: #607d8b;
+  font-size: 14px;
+  margin: 0 0 20px;
+}
+
+.informes__detalle {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+th,
+td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #eceff1;
+  text-align: left;
+}
+th {
+  color: #607d8b;
+  font-weight: 600;
+}
+.informes__derecha {
+  text-align: right;
+}
+
+@media (max-width: 800px) {
+  .informes__resumen,
+  .informes__categorias {
+    grid-template-columns: 1fr;
+  }
+}

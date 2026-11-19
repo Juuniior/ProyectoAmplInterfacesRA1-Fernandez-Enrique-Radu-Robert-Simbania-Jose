@@ -1,0 +1,26 @@
+.selector {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  background-color: #eceff1;
+  border-radius: 10px;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.selector__opcion {
+  border: none;
+  background: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: #607d8b;
+  cursor: pointer;
+}
+
+.selector__opcion--activa {
+  background-color: #ffffff;
+  color: #263238;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}

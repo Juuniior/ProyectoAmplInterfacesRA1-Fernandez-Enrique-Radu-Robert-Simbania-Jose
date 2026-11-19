@@ -9,15 +9,17 @@ Aplicación Angular para registrar ingresos y gastos (Proyecto Ampliación de In
 ```
 src/app/
 ├── core/
-│   ├── auth/          Autenticación (contrato, implementación local y token)
+│   ├── auth/          Autenticación (contrato, implementación local, token y guard de rutas)
 │   ├── interfaces/    Modelos de datos (Movimiento, Factura)
 │   ├── services/      Servicios compartidos (MovimientoService, FacturaService)
 │   └── utils/         Cálculos de facturas (funciones puras)
-├── features/          Páginas: home, movimientos, facturas, login
-└── shared/components/ Componentes reutilizables: header, footer, boton-cta
+├── features/          Páginas: home, movimientos, facturas, informes, login
+└── shared/components/ Componentes reutilizables: header, footer, boton-cta, tarjeta-resumen, barra-categoria, selector-periodo
 ```
 
-Más detalle en [`docs/login-registro.md`](docs/login-registro.md) y [`docs/facturas.md`](docs/facturas.md).
+Más detalle en [`docs/login-registro.md`](docs/login-registro.md) (login, registro y protección de rutas), [`docs/facturas.md`](docs/facturas.md) y [`docs/informes.md`](docs/informes.md).
+
+Todas las páginas menos `/login` exigen iniciar sesión.
 
 ## Angular CLI
 

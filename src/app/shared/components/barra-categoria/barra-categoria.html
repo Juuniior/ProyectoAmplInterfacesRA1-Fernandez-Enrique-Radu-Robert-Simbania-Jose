@@ -1,0 +1,13 @@
+<button
+  type="button"
+  class="barra"
+  [class.barra--activa]="activa"
+  [attr.aria-pressed]="activa"
+  (click)="seleccionada.emit(etiqueta)"
+>
+  <span class="barra__etiqueta">{{ etiqueta }}</span>
+  <span class="barra__pista">
+    <span class="barra__relleno barra__relleno--{{ tipo }}" [style.width.%]="ancho"></span>
+  </span>
+  <span class="barra__importe">{{ importeTexto }}</span>
+</button>

@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Router } from '@angular/router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Login } from './login';
 import { AUTENTICACION } from '../../core/auth/autenticacion.token';
@@ -23,6 +24,7 @@ describe('Login', () => {
   let fixture: ComponentFixture<Login>;
   let component: Login;
   let auth: ServicioAutenticacion;
+  let router: Router;
 
   beforeEach(async () => {
     auth = servicioFalso();
@@ -30,6 +32,9 @@ describe('Login', () => {
       imports: [Login],
       providers: [{ provide: AUTENTICACION, useValue: auth }],
     }).compileComponents();
+
+    router = TestBed.inject(Router);
+    vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
 
     fixture = TestBed.createComponent(Login);
     component = fixture.componentInstance;
@@ -147,5 +152,41 @@ describe('Login', () => {
     const f = TestBed.createComponent(Login);
     await f.whenStable();
     expect(f.componentInstance.usuario()).toEqual(ANA);
+  });
+
+  describe('redirección tras iniciar sesión', () => {
+    async function entrar(returnUrl?: string) {
+      if (returnUrl !== undefined) {
+        fixture.componentRef.setInput('returnUrl', returnUrl);
+      }
+      component.formLogin.setValue({ email: 'ana@ejemplo.com', password: 'contraseña-segura' });
+      await component.iniciarSesion();
+    }
+
+    it('sin returnUrl va a Inicio', async () => {
+      await entrar();
+      expect(router.navigateByUrl).toHaveBeenCalledWith('/home');
+    });
+
+    it('con returnUrl interno vuelve a esa página', async () => {
+      await entrar('/informes');
+      expect(router.navigateByUrl).toHaveBeenCalledWith('/informes');
+    });
+
+    it.each(['//malo.com', 'https://malo.com', '/' + String.fromCharCode(92) + 'malo.com', 'informes'])(
+      'ignora el returnUrl no seguro %s',
+      async (url) => {
+        await entrar(url);
+        expect(router.navigateByUrl).toHaveBeenCalledWith('/home');
+      },
+    );
+
+    it('si las credenciales fallan no navega', async () => {
+      vi.mocked(auth.iniciarSesion).mockRejectedValue(
+        new ErrorAutenticacion('CREDENCIALES_INVALIDAS', 'Correo o contraseña incorrectos.'),
+      );
+      await entrar('/informes');
+      expect(router.navigateByUrl).not.toHaveBeenCalled();
+    });
   });
 });

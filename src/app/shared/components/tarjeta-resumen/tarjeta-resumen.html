@@ -1,0 +1,10 @@
+<article class="resumen">
+  <div class="resumen__cabecera">
+    <h3 class="resumen__titulo">{{ titulo }}</h3>
+    <span class="resumen__icono resumen__icono--{{ tipo }}" aria-hidden="true">{{ icono }}</span>
+  </div>
+  <p class="resumen__importe resumen__importe--{{ tipo }}">{{ importeTexto }}</p>
+  @if (detalle) {
+    <p class="resumen__detalle">{{ detalle }}</p>
+  }
+</article>
