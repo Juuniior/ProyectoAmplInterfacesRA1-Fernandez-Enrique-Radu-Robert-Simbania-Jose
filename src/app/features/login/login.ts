@@ -117,7 +117,11 @@ export class Login implements OnInit {
   }
 
   ngOnInit(): void {
-    this.modo.set(this.modoInicial);
+    // Por defecto se muestra "Iniciar sesión". El `?? 'login'` asegura que un
+    // valor indefinido (p. ej. durante el renderizado del servidor, donde el
+    // @Input puede no aplicarse) deja siempre la pestaña de login seleccionada
+    // y su formulario visible, en lugar de ninguna pestaña marcada.
+    this.modo.set(this.modoInicial ?? 'login');
   }
 
   cambiarModo(modo: ModoAcceso): void {
