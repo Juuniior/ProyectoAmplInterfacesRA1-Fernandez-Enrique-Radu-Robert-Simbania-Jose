@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
 import {
   ActivatedRouteSnapshot,
   Router,
@@ -27,6 +28,7 @@ describe('autenticadoGuard', () => {
       iniciarSesion: vi.fn(),
       cerrarSesion: vi.fn(),
       usuarioActual: () => usuario,
+      sesion: signal<UsuarioPublico | null>(null),
     };
     TestBed.configureTestingModule({
       providers: [provideRouter([]), { provide: AUTENTICACION, useValue: falso }],

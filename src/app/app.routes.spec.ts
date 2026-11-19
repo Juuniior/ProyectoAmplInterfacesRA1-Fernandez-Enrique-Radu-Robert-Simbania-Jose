@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
 import { Router, provideRouter, withComponentInputBinding } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -25,6 +26,7 @@ describe('Rutas protegidas', () => {
       iniciarSesion: vi.fn(async () => (usuario = ANA)),
       cerrarSesion: vi.fn(),
       usuarioActual: () => usuario,
+      sesion: signal<UsuarioPublico | null>(null),
     };
     TestBed.configureTestingModule({
       providers: [

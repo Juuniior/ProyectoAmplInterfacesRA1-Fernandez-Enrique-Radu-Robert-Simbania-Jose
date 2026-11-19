@@ -17,7 +17,7 @@ src/app/
 └── shared/components/ Componentes reutilizables: header, footer, boton-cta, tarjeta-resumen, barra-categoria, selector-periodo
 ```
 
-Más detalle en [`docs/login-registro.md`](docs/login-registro.md) (login, registro y protección de rutas), [`docs/facturas.md`](docs/facturas.md) y [`docs/informes.md`](docs/informes.md).
+Más detalle en [`docs/login-registro.md`](docs/login-registro.md) (login, registro y protección de rutas), [`docs/movimientos.md`](docs/movimientos.md), [`docs/facturas.md`](docs/facturas.md) y [`docs/informes.md`](docs/informes.md).
 
 Todas las páginas menos `/login` exigen iniciar sesión.
 

@@ -18,6 +18,7 @@ import {
   TotalesFactura,
 } from '../../core/interfaces/factura.interface';
 import { FacturaService } from '../../core/services/factura.service';
+import { formatearEuros } from '../../core/utils/formato';
 import {
   aFechaIso,
   calcularTotales,
@@ -207,9 +208,9 @@ export class Facturas {
     if (!pagada) {
       return;
     }
-    const importe = new DecimalPipe('es-ES').transform(totalFactura(pagada), '1.2-2');
+    const importe = formatearEuros(totalFactura(pagada));
     this.aviso.set({
-      texto: `${pagada.numero} marcada como pagada. Se ha añadido un ingreso de ${importe} € en`,
+      texto: `${pagada.numero} marcada como pagada. Se ha añadido un ingreso de ${importe} en`,
       enlaceMovimientos: true,
     });
   }

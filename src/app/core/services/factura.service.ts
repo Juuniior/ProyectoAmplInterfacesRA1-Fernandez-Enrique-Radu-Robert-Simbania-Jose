@@ -1,13 +1,73 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { Factura, NuevaFactura } from '../interfaces/factura.interface';
 import { siguienteNumero, totalFactura } from '../utils/calculos-factura';
-import { MovimientoService } from './movimiento.service';
+import { AUTENTICACION } from '../auth/autenticacion.token';
+import { DEMO_EMAIL, MovimientoService } from './movimiento.service';
 
 /** Lo que se guarda de cada factura: el estado y la fecha de pago se calculan. */
 type FacturaGuardada = Omit<Factura, 'estado' | 'fechaPago'>;
 
 /**
- * Gestiona las facturas y las conecta con Movimientos.
+ * Datos de ejemplo. Cada usuario recibe su PROPIA copia la primera vez que entra.
+ * La F-2026-001 está cobrada: su ingreso (facturaId: 1) está en los datos de
+ * ejemplo de MovimientoService.
+ */
+const FACTURAS_DEMO: FacturaGuardada[] = [
+  {
+    id: 1,
+    numero: 'F-2026-001',
+    cliente: 'Estudio Lumen S.L.',
+    fechaEmision: '2026-10-05',
+    fechaVencimiento: '2026-11-04',
+    lineas: [
+      { descripcion: 'Diseño de página web', cantidad: 1, precioUnitario: 1200 },
+      { descripcion: 'Alojamiento web (1 año)', cantidad: 1, precioUnitario: 120 },
+    ],
+    tipoIva: 21,
+    aplicaIrpf: true,
+  },
+  {
+    id: 2,
+    numero: 'F-2026-002',
+    cliente: 'Panadería Robles',
+    fechaEmision: '2026-10-20',
+    fechaVencimiento: '2026-11-10',
+    lineas: [{ descripcion: 'Mantenimiento mensual', cantidad: 2, precioUnitario: 90 }],
+    tipoIva: 21,
+    aplicaIrpf: false,
+  },
+  {
+    id: 3,
+    numero: 'F-2026-003',
+    cliente: 'Clínica Dental Sonrisa',
+    fechaEmision: '2026-11-03',
+    fechaVencimiento: '2026-12-03',
+    lineas: [
+      { descripcion: 'Campaña en redes sociales', cantidad: 1, precioUnitario: 450 },
+      { descripcion: 'Sesión de fotos', cantidad: 3, precioUnitario: 60 },
+    ],
+    tipoIva: 21,
+    aplicaIrpf: true,
+  },
+  {
+    id: 4,
+    numero: 'F-2026-004',
+    cliente: 'Asociación Vecinal Norte',
+    fechaEmision: '2026-11-12',
+    fechaVencimiento: '2026-12-12',
+    lineas: [{ descripcion: 'Taller de formación', cantidad: 4, precioUnitario: 75 }],
+    tipoIva: 10,
+    aplicaIrpf: false,
+  },
+];
+
+/**
+ * Gestiona las facturas de la persona que tiene la sesión iniciada y las
+ * conecta con sus Movimientos.
+ *
+ * Cada usuario guarda sus facturas en `localStorage`, separadas por su correo
+ * (`app.facturas.<email>`). Así cada cuenta ve solo sus facturas, sus cobros y
+ * sus movimientos, sin compartirlos con otros usuarios.
  *
  * Una factura está pagada si existe un movimiento con su `facturaId` (el cobro).
  * Así hay una sola fuente de verdad: si el cobro se borra en Movimientos,
@@ -15,62 +75,28 @@ type FacturaGuardada = Omit<Factura, 'estado' | 'fechaPago'>;
  */
 @Injectable({ providedIn: 'root' })
 export class FacturaService {
+  private readonly auth = inject(AUTENTICACION);
   private readonly movimientoService = inject(MovimientoService);
 
-  // Datos de ejemplo en memoria. La F-2026-001 está cobrada: su ingreso
-  // (facturaId: 1) está en los datos de ejemplo de MovimientoService.
-  private readonly listaFacturas = signal<FacturaGuardada[]>([
-    {
-      id: 1,
-      numero: 'F-2026-001',
-      cliente: 'Estudio Lumen S.L.',
-      fechaEmision: '2026-10-05',
-      fechaVencimiento: '2026-11-04',
-      lineas: [
-        { descripcion: 'Diseño de página web', cantidad: 1, precioUnitario: 1200 },
-        { descripcion: 'Alojamiento web (1 año)', cantidad: 1, precioUnitario: 120 },
-      ],
-      tipoIva: 21,
-      aplicaIrpf: true,
-    },
-    {
-      id: 2,
-      numero: 'F-2026-002',
-      cliente: 'Panadería Robles',
-      fechaEmision: '2026-10-20',
-      fechaVencimiento: '2026-11-10',
-      lineas: [{ descripcion: 'Mantenimiento mensual', cantidad: 2, precioUnitario: 90 }],
-      tipoIva: 21,
-      aplicaIrpf: false,
-    },
-    {
-      id: 3,
-      numero: 'F-2026-003',
-      cliente: 'Clínica Dental Sonrisa',
-      fechaEmision: '2026-11-03',
-      fechaVencimiento: '2026-12-03',
-      lineas: [
-        { descripcion: 'Campaña en redes sociales', cantidad: 1, precioUnitario: 450 },
-        { descripcion: 'Sesión de fotos', cantidad: 3, precioUnitario: 60 },
-      ],
-      tipoIva: 21,
-      aplicaIrpf: true,
-    },
-    {
-      id: 4,
-      numero: 'F-2026-004',
-      cliente: 'Asociación Vecinal Norte',
-      fechaEmision: '2026-11-12',
-      fechaVencimiento: '2026-12-12',
-      lineas: [{ descripcion: 'Taller de formación', cantidad: 4, precioUnitario: 75 }],
-      tipoIva: 10,
-      aplicaIrpf: false,
-    },
-  ]);
+  /** Copia en memoria por usuario, para no leer de localStorage a cada rato. */
+  private readonly cache = new Map<string, FacturaGuardada[]>();
+
+  /** Facturas vivas del usuario actual (aún sin estado, que se calcula). */
+  private readonly listaFacturas = signal<FacturaGuardada[]>([]);
+
+  constructor() {
+    // Carga inicial inmediata para el usuario que ya tuviera la sesión.
+    this.listaFacturas.set(this.leerOCrear(this.owner()));
+
+    // Cuando cambia la sesión (iniciar o cerrar sesión), se cargan los datos.
+    effect(() => {
+      this.listaFacturas.set(this.leerOCrear(this.owner()));
+    });
+  }
 
   /**
    * Todas las facturas con su estado. Se recalcula sola cuando cambian las
-   * facturas o los movimientos.
+   * facturas o los movimientos del usuario actual.
    */
   readonly facturas = computed<Factura[]>(() => {
     const cobros = new Map(
@@ -101,7 +127,7 @@ export class FacturaService {
       id: lista.length > 0 ? Math.max(...lista.map((f) => f.id)) + 1 : 1,
       numero: siguienteNumero(lista, datos.fechaEmision),
     };
-    this.listaFacturas.update((facturas) => [...facturas, nueva]);
+    this.sustituir([...lista, nueva]);
     return { ...nueva, estado: 'Pendiente' };
   }
 
@@ -138,7 +164,7 @@ export class FacturaService {
     if (!factura || factura.estado === 'Pagada') {
       return false;
     }
-    this.listaFacturas.update((facturas) => facturas.filter((f) => f.id !== id));
+    this.sustituir(this.listaFacturas().filter((f) => f.id !== id));
     return true;
   }
 
@@ -149,5 +175,68 @@ export class FacturaService {
 
   private buscar(id: number): Factura | null {
     return this.facturas().find((f) => f.id === id) ?? null;
+  }
+
+  /** Correo del usuario actual, o el de demostración si no hay sesión. */
+  private owner(): string {
+    return this.auth.sesion()?.email ?? DEMO_EMAIL;
+  }
+
+  /** Clave de localStorage que guarda las facturas de un usuario. */
+  private clave(email: string): string {
+    return `app.facturas.${email}`;
+  }
+
+  /**
+   * Devuelve las facturas de un usuario, creándolas con los datos de ejemplo
+   * si es la primera vez que entra. Las mantiene en memoria para lecturas rápidas.
+   */
+  private leerOCrear(email: string): FacturaGuardada[] {
+    const enCache = this.cache.get(email);
+    if (enCache) {
+      return enCache;
+    }
+
+    let datos: unknown = null;
+    try {
+      const texto = localStorage.getItem(this.clave(email));
+      datos = texto ? JSON.parse(texto) : null;
+    } catch {
+      datos = null;
+    }
+
+    if (!Array.isArray(datos)) {
+      datos = FACTURAS_DEMO.map((factura) => ({
+        ...factura,
+        lineas: factura.lineas.map((linea) => ({ ...linea })),
+      }));
+      // El usuario de demostración no se guarda: solo persisten los usuarios reales.
+      if (email !== DEMO_EMAIL) {
+        try {
+          localStorage.setItem(this.clave(email), JSON.stringify(datos));
+        } catch {
+          // Sin localStorage (por ejemplo, en el servidor con SSR) se usa solo en memoria.
+        }
+      }
+    }
+
+    const lista = datos as FacturaGuardada[];
+    this.cache.set(email, lista);
+    return lista;
+  }
+
+  /** Actualiza la lista visible y la guarda en localStorage del usuario actual. */
+  private sustituir(lista: FacturaGuardada[]): void {
+    const email = this.owner();
+    this.cache.set(email, lista);
+    this.listaFacturas.set(lista);
+    // El usuario de demostración no se guarda: solo persisten los usuarios reales.
+    if (email !== DEMO_EMAIL) {
+      try {
+        localStorage.setItem(this.clave(email), JSON.stringify(lista));
+      } catch {
+        // Sin localStorage (SSR) la lista sigue viva en memoria.
+      }
+    }
   }
 }

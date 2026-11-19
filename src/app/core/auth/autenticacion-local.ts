@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import {
   DatosRegistro,
   ErrorAutenticacion,
@@ -64,6 +65,17 @@ async function derivarHash(
  * sustituye cuando se pase a una API o a Firebase.
  */
 export class AutenticacionLocal implements ServicioAutenticacion {
+  /**
+   * Sesión actual como señal reactiva. Los servicios de datos (Movimientos,
+   * Facturas) la escuchan para cargar los datos del usuario que entra.
+   */
+  readonly sesion = signal<UsuarioPublico | null>(null);
+
+  constructor() {
+    // Arranca con la sesión ya guardada en sessionStorage (si existe).
+    this.sesion.set(this.usuarioActual());
+  }
+
   async registrar(datos: DatosRegistro): Promise<UsuarioPublico> {
     const email = normalizarEmail(datos.email);
 
@@ -112,6 +124,7 @@ export class AutenticacionLocal implements ServicioAutenticacion {
 
     const publico = this.aPublico(usuario);
     sessionStorage.setItem(CLAVE_SESION, JSON.stringify(publico));
+    this.sesion.set(publico);
     return publico;
   }
 
@@ -121,6 +134,7 @@ export class AutenticacionLocal implements ServicioAutenticacion {
     } catch {
       // Sin sessionStorage (por ejemplo, en el servidor con SSR) no hay sesión que cerrar.
     }
+    this.sesion.set(null);
   }
 
   usuarioActual(): UsuarioPublico | null {

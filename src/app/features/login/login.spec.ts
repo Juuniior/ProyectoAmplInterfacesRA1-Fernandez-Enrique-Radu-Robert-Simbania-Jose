@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Login } from './login';
@@ -17,6 +18,7 @@ function servicioFalso(): ServicioAutenticacion {
     iniciarSesion: vi.fn(async () => ANA),
     cerrarSesion: vi.fn(),
     usuarioActual: vi.fn(() => null),
+    sesion: signal<UsuarioPublico | null>(null),
   };
 }
 

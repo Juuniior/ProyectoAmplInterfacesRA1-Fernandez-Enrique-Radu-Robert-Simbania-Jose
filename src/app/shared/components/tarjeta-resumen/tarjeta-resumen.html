@@ -1,4 +1,4 @@
-<article class="resumen">
+<article class="resumen" [attr.aria-label]="titulo + ': ' + importeTexto">
   <div class="resumen__cabecera">
     <h3 class="resumen__titulo">{{ titulo }}</h3>
     <span class="resumen__icono resumen__icono--{{ tipo }}" aria-hidden="true">{{ icono }}</span>

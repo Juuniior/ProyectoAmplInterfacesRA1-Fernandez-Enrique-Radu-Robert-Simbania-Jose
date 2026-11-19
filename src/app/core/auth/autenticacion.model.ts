@@ -1,3 +1,5 @@
+import type { Signal } from '@angular/core';
+
 /**
  * Modelo y contrato de la autenticación de la aplicación.
  *
@@ -36,6 +38,11 @@ export interface ServicioAutenticacion {
   cerrarSesion(): void;
   /** Devuelve el usuario con sesión iniciada, o `null` si no hay ninguno. */
   usuarioActual(): UsuarioPublico | null;
+  /**
+   * Sesión actual como señal reactiva (`null` si no hay nadie iniciado).
+   * Los servicios la escuchan para cargar los datos del usuario que entra.
+   */
+  readonly sesion: Signal<UsuarioPublico | null>;
 }
 
 export type CodigoErrorAutenticacion =

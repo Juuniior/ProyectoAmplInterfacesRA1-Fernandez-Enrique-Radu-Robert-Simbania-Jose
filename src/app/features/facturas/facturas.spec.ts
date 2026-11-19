@@ -27,9 +27,16 @@ describe('Facturas', () => {
     vi.useRealTimers();
   });
 
+  const normal = (texto: string) =>
+    texto
+      .replace(/\u00a0/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
   function texto(): string {
     fixture.detectChanges();
-    return (fixture.nativeElement as HTMLElement).textContent ?? '';
+    const plano = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    return normal(plano);
   }
 
   function rellenarFormulario() {
