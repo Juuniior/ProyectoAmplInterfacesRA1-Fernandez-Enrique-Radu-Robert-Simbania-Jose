@@ -31,7 +31,10 @@ jobs:
         run: npx ng build --configuration production --base-href "/ProyectoAmplInterfacesRA1-Fernandez-Enrique-Radu-Robert-Simbania-Jose/"
 
       - name: SPA fallback (404.html)
-        run: cp dist/proyecto1.1/browser/index.html dist/proyecto1.1/browser/404.html
+        run: |
+          cd dist/proyecto1.1/browser
+          cp index.csr.html index.html
+          cp index.csr.html 404.html
 
       - uses: actions/upload-pages-artifact@v3
         with:
