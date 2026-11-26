@@ -14,7 +14,7 @@ const ANA: UsuarioPublico = {
   fechaNacimiento: '2000-01-01',
 };
 
-describe('Rutas protegidas', () => {
+describe('Rutas de la aplicación (navegación con y sin sesión)', () => {
   let usuario: UsuarioPublico | null;
   let harness: RouterTestingHarness;
   const url = () => TestBed.inject(Router).url;
@@ -37,20 +37,20 @@ describe('Rutas protegidas', () => {
     harness = await RouterTestingHarness.create();
   });
 
-  describe('sin sesión', () => {
+  describe('sin sesión (modo vista previa)', () => {
     it.each(['home', 'movimientos', 'facturas', 'informes'])(
-      '/%s redirige a /login',
+      'permite navegar libremente a /%s sin iniciar sesión',
       async (pagina) => {
         await harness.navigateByUrl(`/${pagina}`);
-        expect(url()).toBe(`/login?returnUrl=%2F${pagina}`);
+        expect(url()).toBe(`/${pagina}`);
       },
     );
 
-    it('la raíz y las rutas desconocidas también acaban en /login', async () => {
+    it('la raíz y las rutas desconocidas llevan a /home', async () => {
       await harness.navigateByUrl('/');
-      expect(url()).toContain('/login');
+      expect(url()).toBe('/home');
       await harness.navigateByUrl('/no-existe');
-      expect(url()).toContain('/login');
+      expect(url()).toBe('/home');
     });
 
     it('/login es accesible', async () => {
@@ -58,8 +58,8 @@ describe('Rutas protegidas', () => {
       expect(url()).toBe('/login');
     });
 
-    it('tras iniciar sesión se vuelve a la página que se pedía', async () => {
-      const login = await harness.navigateByUrl('/informes', Login);
+    it('tras iniciar sesión en /login con returnUrl se vuelve a la página indicada', async () => {
+      const login = await harness.navigateByUrl('/login?returnUrl=%2Finformes', Login);
       login.formLogin.setValue({ email: 'ana@ejemplo.com', password: 'contraseña-segura' });
       await login.iniciarSesion();
       expect(url()).toBe('/informes');

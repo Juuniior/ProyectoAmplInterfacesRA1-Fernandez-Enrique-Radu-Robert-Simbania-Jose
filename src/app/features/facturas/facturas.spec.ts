@@ -1,25 +1,49 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Facturas } from './facturas';
 import { MovimientoService } from '../../core/services/movimiento.service';
+import { AUTENTICACION } from '../../core/auth/autenticacion.token';
+import { ServicioAutenticacion, UsuarioPublico } from '../../core/auth/autenticacion.model';
+import { AccesoModalService } from '../../core/auth/acceso-modal.service';
+
+const ANA: UsuarioPublico = {
+  nombre: 'Ana',
+  email: 'ana@ejemplo.com',
+  fechaNacimiento: '2000-01-01',
+};
 
 describe('Facturas', () => {
   let fixture: ComponentFixture<Facturas>;
   let component: Facturas;
+  let modalAcceso: AccesoModalService;
+  let sesionSignal: ReturnType<typeof signal<UsuarioPublico | null>>;
 
   beforeEach(async () => {
+    localStorage.clear();
+    sessionStorage.clear();
     // Fijamos "hoy" para que los estados (vencida/pendiente) no dependan del día en que se ejecute.
     vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date(2026, 10, 18, 12)); // 18/11/2026
 
+    sesionSignal = signal<UsuarioPublico | null>(ANA);
+    const authFalso: ServicioAutenticacion = {
+      registrar: async () => ANA,
+      iniciarSesion: async () => ANA,
+      cerrarSesion: () => sesionSignal.set(null),
+      usuarioActual: () => sesionSignal(),
+      sesion: sesionSignal,
+    };
+
     await TestBed.configureTestingModule({
       imports: [Facturas],
-      providers: [provideRouter([])],
+      providers: [provideRouter([]), { provide: AUTENTICACION, useValue: authFalso }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Facturas);
     component = fixture.componentInstance;
+    modalAcceso = TestBed.inject(AccesoModalService);
     await fixture.whenStable();
   });
 
@@ -150,5 +174,34 @@ describe('Facturas', () => {
     const pendiente = component.facturasFiltradas().find((f) => f.factura.numero === 'F-2026-004')!;
     component.eliminar(pendiente.factura);
     expect(component.facturasFiltradas().length).toBe(3);
+  });
+
+  describe('modo vista previa (sin iniciar sesión)', () => {
+    beforeEach(() => {
+      sesionSignal.set(null);
+      fixture.detectChanges();
+    });
+
+    it('oculta las etiquetas amarillas de ejemplo cuando no se ha iniciado sesión', () => {
+      const marcas = (fixture.nativeElement as HTMLElement).querySelectorAll('.marca-ejemplo');
+      expect(marcas.length).toBe(0);
+    });
+
+    it('abre el modal de acceso al intentar crear, cobrar o eliminar una factura sin sesión', () => {
+      rellenarFormulario();
+      component.crearFactura();
+      expect(modalAcceso.abierto()).toBe(true);
+      expect(component.facturasFiltradas().length).toBe(4);
+
+      modalAcceso.cerrar();
+      const pendiente = component.facturasFiltradas().find((f) => f.factura.numero === 'F-2026-004')!;
+      component.marcarPagada(pendiente.factura);
+      expect(modalAcceso.abierto()).toBe(true);
+
+      modalAcceso.cerrar();
+      component.eliminar(pendiente.factura);
+      expect(modalAcceso.abierto()).toBe(true);
+      expect(component.facturasFiltradas().length).toBe(4);
+    });
   });
 });

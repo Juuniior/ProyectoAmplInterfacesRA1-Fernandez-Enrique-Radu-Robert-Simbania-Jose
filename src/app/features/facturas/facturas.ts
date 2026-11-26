@@ -18,6 +18,8 @@ import {
   TotalesFactura,
 } from '../../core/interfaces/factura.interface';
 import { FacturaService } from '../../core/services/factura.service';
+import { AUTENTICACION } from '../../core/auth/autenticacion.token';
+import { AccesoModalService } from '../../core/auth/acceso-modal.service';
 import { formatearEuros } from '../../core/utils/formato';
 import {
   aFechaIso,
@@ -63,6 +65,13 @@ interface FilaFactura {
 export class Facturas {
   private readonly facturaService = inject(FacturaService);
   private readonly fb = inject(FormBuilder);
+  private readonly auth = inject(AUTENTICACION);
+  private readonly modalAcceso = inject(AccesoModalService);
+
+  /** ¿Hay un usuario con sesión iniciada? */
+  get sesionIniciada(): boolean {
+    return this.auth.sesion() !== null;
+  }
 
   readonly tiposIva: TipoIva[] = [21, 10, 4];
   readonly retencionIrpf = RETENCION_IRPF;
@@ -180,6 +189,10 @@ export class Facturas {
   }
 
   crearFactura(): void {
+    if (!this.sesionIniciada) {
+      this.modalAcceso.solicitar('Inicia sesión o regístrate para emitir tus propias facturas.');
+      return;
+    }
     if (this.formulario.invalid) {
       this.formulario.markAllAsTouched();
       return;
@@ -204,6 +217,10 @@ export class Facturas {
   }
 
   marcarPagada(factura: Factura): void {
+    if (!this.sesionIniciada) {
+      this.modalAcceso.solicitar('Inicia sesión o regístrate para registrar el cobro de facturas.');
+      return;
+    }
     const pagada = this.facturaService.marcarPagada(factura.id, this.hoy());
     if (!pagada) {
       return;
@@ -216,6 +233,10 @@ export class Facturas {
   }
 
   eliminar(factura: Factura): void {
+    if (!this.sesionIniciada) {
+      this.modalAcceso.solicitar('Inicia sesión o regístrate para eliminar facturas.');
+      return;
+    }
     if (this.facturaService.eliminarFactura(factura.id)) {
       this.aviso.set({ texto: `Factura ${factura.numero} eliminada.`, enlaceMovimientos: false });
     }

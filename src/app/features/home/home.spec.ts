@@ -54,4 +54,11 @@ describe('Home', () => {
     expect(contenido).toContain('Gastos');
     expect(contenido).toContain('Últimos movimientos');
   });
+
+  it('should hide yellow example messages and badges when not logged in', () => {
+    expect(component.sesionIniciada).toBe(false);
+    expect(component.hayDatosEjemplo).toBe(false);
+    expect(fixture.nativeElement.querySelector('.aviso-ejemplo')).toBeNull();
+    expect(fixture.nativeElement.querySelectorAll('.marca-ejemplo').length).toBe(0);
+  });
 });

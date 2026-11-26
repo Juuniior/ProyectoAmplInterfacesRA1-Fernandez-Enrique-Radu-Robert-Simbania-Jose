@@ -1,0 +1,66 @@
+.modal-acceso__fondo {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background-color: rgba(35, 38, 32, 0.55);
+  backdrop-filter: blur(2px);
+}
+
+.modal-acceso__dialogo {
+  width: 100%;
+  max-width: 420px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background-color: #ffffff;
+  border: 1px solid #e4e3df;
+  border-radius: 14px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  color: #232620;
+}
+
+.modal-acceso__cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 24px 8px;
+}
+
+.modal-acceso__titulo {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #232620;
+}
+
+.modal-acceso__motivo {
+  margin: 6px 0 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #607d8b;
+}
+
+.modal-acceso__cerrar {
+  border: none;
+  background: none;
+  color: #6d6f68;
+  font-size: 22px;
+  line-height: 1;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.modal-acceso__cerrar:hover {
+  background-color: #eef1ee;
+  color: #232620;
+}
+
+.modal-acceso__cuerpo {
+  padding: 0 4px 8px;
+}

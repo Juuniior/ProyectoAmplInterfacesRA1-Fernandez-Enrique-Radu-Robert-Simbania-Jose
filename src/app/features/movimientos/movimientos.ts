@@ -6,6 +6,8 @@ import localeEs from '@angular/common/locales/es';
 import { Movimiento } from '../../core/interfaces/movimiento.interface';
 import { MovimientoService } from '../../core/services/movimiento.service';
 import { FacturaService } from '../../core/services/factura.service';
+import { AUTENTICACION } from '../../core/auth/autenticacion.token';
+import { AccesoModalService } from '../../core/auth/acceso-modal.service';
 
 registerLocaleData(localeEs);
 
@@ -20,6 +22,13 @@ registerLocaleData(localeEs);
 export class Movimientos {
   private readonly movimientoService = inject(MovimientoService);
   private readonly facturaService = inject(FacturaService);
+  private readonly auth = inject(AUTENTICACION);
+  private readonly modalAcceso = inject(AccesoModalService);
+
+  // ¿Hay un usuario con sesión iniciada?
+  get sesionIniciada(): boolean {
+    return this.auth.sesion() !== null;
+  }
 
   // Aviso que se muestra al borrar el cobro de una factura.
   aviso: string | null = null;
@@ -65,6 +74,11 @@ export class Movimientos {
 
   // Valida los datos y añade un movimiento al servicio compartido.
   agregarMovimiento(): void {
+    if (!this.sesionIniciada) {
+      this.modalAcceso.solicitar('Inicia sesión o regístrate para añadir tus propios movimientos.');
+      return;
+    }
+
     const concepto = this.nuevoConcepto.trim();
     const importe = Number(this.nuevoImporte);
 
@@ -99,6 +113,11 @@ export class Movimientos {
   // Elimina un movimiento por su identificador. Si era el cobro de una factura,
   // esa factura vuelve a estar pendiente (FacturaService lo calcula solo).
   eliminarMovimiento(id: number): void {
+    if (!this.sesionIniciada) {
+      this.modalAcceso.solicitar('Inicia sesión o regístrate para gestionar y eliminar movimientos.');
+      return;
+    }
+
     const movimiento = this.movimientos.find(m => m.id === id);
     const numero = movimiento ? this.numeroFactura(movimiento) : undefined;
 

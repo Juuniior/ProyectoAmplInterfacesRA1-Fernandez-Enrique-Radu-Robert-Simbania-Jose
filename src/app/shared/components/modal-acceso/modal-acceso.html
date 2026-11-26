@@ -1,0 +1,36 @@
+@if (abierto) {
+  <div class="modal-acceso__fondo" (click)="cerrar()">
+    <div
+      class="modal-acceso__dialogo"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-acceso-titulo"
+      (click)="$event.stopPropagation()"
+    >
+      <header class="modal-acceso__cabecera">
+        <div>
+          <h2 id="modal-acceso-titulo" class="modal-acceso__titulo">Inicia sesión para continuar</h2>
+          @if (motivo) {
+            <p class="modal-acceso__motivo">{{ motivo }}</p>
+          }
+        </div>
+        <button
+          type="button"
+          class="modal-acceso__cerrar"
+          (click)="cerrar()"
+          aria-label="Cerrar ventana de acceso"
+        >
+          ×
+        </button>
+      </header>
+
+      <div class="modal-acceso__cuerpo">
+        <app-login
+          [enModal]="true"
+          [modoInicial]="modoInicial"
+          (sesionIniciada)="alIniciarSesion($event)"
+        />
+      </div>
+    </div>
+  </div>
+}

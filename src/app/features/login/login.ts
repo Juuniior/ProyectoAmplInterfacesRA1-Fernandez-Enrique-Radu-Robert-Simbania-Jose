@@ -73,6 +73,12 @@ export class Login implements OnInit {
   @Input() modoInicial: ModoAcceso = 'login';
 
   /**
+   * Si es `true`, el componente se muestra dentro de una ventana emergente (modal)
+   * y no redirige a otra ruta al iniciar sesión.
+   */
+  @Input() enModal = false;
+
+  /**
    * Página a la que volver tras iniciar sesión. La rellena el router con `?returnUrl=...`
    * cuando `autenticadoGuard` redirige aquí. Si no hay (o no es una ruta interna), se va a Inicio.
    */
@@ -157,7 +163,9 @@ export class Login implements OnInit {
       this.usuario.set(usuario);
       this.formLogin.reset();
       this.sesionIniciada.emit(usuario);
-      await this.router.navigateByUrl(this.destino());
+      if (!this.enModal) {
+        await this.router.navigateByUrl(this.destino());
+      }
     });
   }
 

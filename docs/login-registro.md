@@ -39,6 +39,7 @@ escribe la etiqueta a mano.
 | Nombre        | Tipo                    | Por defecto | Descripción                             |
 | ------------- | ----------------------- | ----------- | --------------------------------------- |
 | `modoInicial` | `'login' \| 'registro'` | `'login'`   | Pestaña con la que arranca la pantalla. |
+| `enModal`     | `boolean`               | `false`     | Si es `true`, adapta el diseño a una ventana emergente y no redirige al iniciar sesión. |
 
 ### Salidas (`@Output`)
 
@@ -108,10 +109,13 @@ npm test          # ng test (Vitest)
 | `core/auth/autenticacion-local.spec.ts` | Registro, hash con sal (la contraseña no se guarda), normalización del correo, correo duplicado, login correcto e incorrecto, cierre de sesión, datos corruptos, entorno sin Web Crypto.             |
 | `core/auth/autenticacion.token.spec.ts` | Implementación por defecto y sustitución del servicio.                                                                                                                                               |
 
-## Protección de rutas (`autenticadoGuard`)
+## Navegación sin sesión (modo vista previa) y ventana emergente (`ModalAcceso`)
 
-Todas las páginas menos `/login` exigen haber iniciado sesión. Lo hace un *guard* funcional:
-`src/app/core/auth/autenticado.guard.ts`.
+Todas las páginas (`/home`, `/movimientos`, `/facturas` e `/informes`) son accesibles sin necesidad de iniciar sesión, mostrando los datos de demostración de `demo@contalite.local` (sin avisos ni etiquetas amarillas de ejemplo mientras no se haya iniciado sesión).
+
+Cuando un usuario sin sesión pulsa un botón que modifica datos (añadir o eliminar un movimiento, crear, cobrar o eliminar una factura), `AccesoModalService` abre la ventana emergente `<app-modal-acceso>`, que incrusta `<app-login [enModal]="true">` para que pueda iniciar sesión o registrarse sin perder la página en la que estaba.
+
+Además, se incluye el *guard* funcional `src/app/core/auth/autenticado.guard.ts` por si se desea exigir sesión antes de entrar a una ruta concreta.
 
 ```ts
 // app.routes.ts

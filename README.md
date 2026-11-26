@@ -42,11 +42,11 @@ La aplicación está organizada por páginas y componentes reutilizables. La nav
 - Agrupa los movimientos por categoría y muestra su distribución.
 - Presenta el estado y los importes de las facturas.
 
-### Acceso y registro (`/login`)
+### Acceso y registro (`/login` y ventana emergente)
 
 - Incluye formularios de inicio de sesión y creación de cuenta.
 - Valida los datos introducidos.
-- Protege las páginas privadas mediante un guard de rutas: para acceder a Inicio, Movimientos, Facturas e Informes es necesario iniciar sesión.
+- Permite navegar por toda la aplicación sin iniciar sesión en modo vista previa (con datos de demostración) y abre una ventana emergente (`ModalAcceso`) cuando el usuario intenta realizar una acción que requiere sesión.
 
 ## 3. Tecnologías utilizadas
 
@@ -96,6 +96,7 @@ Los componentes presentacionales reciben información mediante propiedades de en
 | `BarraCategoria` | Representa visualmente el importe y porcentaje de una categoría. | `etiqueta`, `importe`, `porcentaje`, `tipo`, `activa` (`@Input`); `seleccionada` (`@Output`). |
 | `SelectorPeriodo` | Permite elegir el periodo que se desea consultar. | `opciones`, `valor`, `etiqueta` (`@Input`); `valorCambiado` (`@Output`). |
 | `BotonCta` | Botón reutilizable para acciones destacadas. | `texto`, `variante`, `deshabilitado` (`@Input`). |
+| `ModalAcceso` | Ventana emergente para iniciar sesión o registrarse al pulsar acciones sin sesión. | `abierto`, `motivo`, `modoInicial` (`@Input`); `cerrado`, `sesionIniciada` (`@Output`). |
 | `Header` | Cabecera y navegación principal de la aplicación. | Componente visual compartido. |
 | `Footer` | Pie de página compartido. | Componente visual compartido. |
 
@@ -189,10 +190,10 @@ La primera vez que se utiliza una cuenta pueden aparecer registros de ejemplo pa
 | Ruta | Página | Acceso |
 |---|---|---|
 | `/login` | Inicio de sesión y registro | Pública |
-| `/home` | Inicio | Requiere sesión |
-| `/movimientos` | Movimientos | Requiere sesión |
-| `/facturas` | Facturas | Requiere sesión |
-| `/informes` | Informes | Requiere sesión |
+| `/home` | Inicio | Pública (vista previa sin sesión / datos propios con sesión) |
+| `/movimientos` | Movimientos | Pública (vista previa; añadir o eliminar solicita sesión en ventana emergente) |
+| `/facturas` | Facturas | Pública (vista previa; crear, cobrar o eliminar solicita sesión en ventana emergente) |
+| `/informes` | Informes | Pública (vista previa sin sesión / datos propios con sesión) |
 
 La ruta raíz (`/`) redirige a `/home`. Las rutas desconocidas también redirigen a Inicio.
 

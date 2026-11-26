@@ -80,7 +80,7 @@
 
           <td>
             {{ movimiento.concepto }}
-            @if (movimiento.ejemplo) {
+            @if (sesionIniciada && movimiento.ejemplo) {
               <span class="marca-ejemplo">Ejemplo</span>
             }
           </td>
