@@ -3,6 +3,7 @@ import { CommonModule, registerLocaleData } from '@angular/common';
 import localeEs from '@angular/common/locales/es';
 import { Movimiento } from '../../core/interfaces/movimiento.interface';
 import { MovimientoService } from '../../core/services/movimiento.service';
+import { AUTENTICACION } from '../../core/auth/autenticacion.token';
 
 registerLocaleData(localeEs);
 
@@ -16,6 +17,12 @@ registerLocaleData(localeEs);
 })
 export class Home {
   private readonly movimientoService = inject(MovimientoService);
+  private readonly auth = inject(AUTENTICACION);
+
+  // ¿Hay un usuario con sesión iniciada?
+  get sesionIniciada(): boolean {
+    return this.auth.sesion() !== null;
+  }
 
   // La señal permite que Home se actualice al cambiar los movimientos.
   get movimientos(): Movimiento[] {
@@ -48,8 +55,8 @@ export class Home {
     );
   }
 
-  // ¿Quedan movimientos de ejemplo (de la plantilla) por mostrar? Si es así, se avisa.
+  // ¿Quedan movimientos de ejemplo (de la plantilla) por mostrar? Solo se avisa con sesión iniciada.
   get hayDatosEjemplo(): boolean {
-    return this.movimientos.some(movimiento => movimiento.ejemplo);
+    return this.sesionIniciada && this.movimientos.some(movimiento => movimiento.ejemplo);
   }
 }

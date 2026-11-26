@@ -185,7 +185,7 @@
               <td class="numero">{{ fila.factura.numero }}</td>
               <td>
                 {{ fila.factura.cliente }}
-                @if (fila.factura.ejemplo) {
+                @if (sesionIniciada && fila.factura.ejemplo) {
                   <span class="marca-ejemplo">Ejemplo</span>
                 }
               </td>
